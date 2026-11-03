@@ -9,91 +9,367 @@
     x:DataType="vm:MasterDataViewModel"
     Title="Data Master">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="28,20" Spacing="0">
+    <ContentPage.Resources>
+        <Style x:Key="FormLabel" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        </Style>
+        <Style x:Key="FormHint" TargetType="Label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        </Style>
+    </ContentPage.Resources>
 
-            <Label Text="Data master" Style="{StaticResource PageTitle}" Margin="0,0,0,4" />
-            <Label Text="Kelola data sales dan toko mitra yang menjadi rujukan sistem absensi." Style="{StaticResource PageSubtitle}" Margin="0,0,0,16" />
+    <Grid>
 
-            <!-- Tab Sales / Toko -->
-            <controls:FloatingCard Style="{StaticResource Card}" Padding="4">
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
-                    <Border Grid.Column="0" BackgroundColor="{StaticResource PrimaryBright}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="0,10">
-                        <Label Text="{Binding JumlahSales, StringFormat='Sales ({0})'}" HorizontalOptions="Center" TextColor="{StaticResource OnPrimary}" FontFamily="OpenSansSemibold" />
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding TampilkanSalesCommand}" />
-                        </Border.GestureRecognizers>
-                    </Border>
-                    <Border Grid.Column="1" BackgroundColor="Transparent" StrokeThickness="0" Padding="0,10">
-                        <Label Text="{Binding JumlahToko, StringFormat='Toko ({0})'}" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" />
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding TampilkanTokoCommand}" />
-                        </Border.GestureRecognizers>
-                    </Border>
-                </Grid>
-            </controls:FloatingCard>
+        <ScrollView>
+            <VerticalStackLayout Padding="28,20" Spacing="0">
 
-            <!-- Tabel sales -->
-            <controls:FloatingCard Style="{StaticResource Card}" Margin="0,10,0,0" IsVisible="{Binding IsTabSales}">
-                <VerticalStackLayout Spacing="0">
-                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
-                        <Label Grid.Column="0" Text="Daftar sales" Style="{StaticResource SectionTitle}" />
-                        <Button Grid.Column="1" Text="+ Tambah sales" Style="{StaticResource PrimaryButton}" Command="{Binding TambahSalesCommand}" HeightRequest="36" />
+                <Label Text="Data master" Style="{StaticResource PageTitle}" Margin="0,0,0,4" />
+                <Label Text="Kelola data sales dan toko mitra yang menjadi rujukan sistem absensi." Style="{StaticResource PageSubtitle}" Margin="0,0,0,16" />
+
+                <!-- Segmented tab Sales / Toko -->
+                <controls:FloatingCard Style="{StaticResource Card}" Padding="4">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="4">
+
+                        <!-- Tab Sales -->
+                        <Border Grid.Column="0"
+                                BackgroundColor="Transparent"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="0,10">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding IsSalesSelected}"
+                                             Value="True">
+                                    <Setter Property="BackgroundColor" Value="#FFDC73" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding TampilkanSalesCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding JumlahSales, StringFormat='Sales ({0})'}"
+                                   HorizontalOptions="Center"
+                                   TextColor="{StaticResource TextSecondary}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsSalesSelected}"
+                                                 Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource OnPrimary}" />
+                                        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsSalesSelected}"
+                                                 Value="False">
+                                        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+                                        <Setter Property="FontFamily" Value="OpenSansRegular" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+
+                        <!-- Tab Toko -->
+                        <Border Grid.Column="1"
+                                BackgroundColor="Transparent"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="0,10">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding IsSalesSelected}"
+                                             Value="False">
+                                    <Setter Property="BackgroundColor" Value="#FFDC73" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding TampilkanTokoCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding JumlahToko, StringFormat='Toko ({0})'}"
+                                   HorizontalOptions="Center"
+                                   TextColor="{StaticResource TextSecondary}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsSalesSelected}"
+                                                 Value="False">
+                                        <Setter Property="TextColor" Value="{StaticResource OnPrimary}" />
+                                        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsSalesSelected}"
+                                                 Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+                                        <Setter Property="FontFamily" Value="OpenSansRegular" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+
                     </Grid>
+                </controls:FloatingCard>
 
-                    <Grid ColumnDefinitions="40,1.2*,1*,1.2*" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
-                        <Label Grid.Column="1" Text="Nama" Style="{StaticResource TableHeader}" />
-                        <Label Grid.Column="2" Text="NIP" Style="{StaticResource TableHeader}" />
-                        <Label Grid.Column="3" Text="Wilayah" Style="{StaticResource TableHeader}" />
-                    </Grid>
+                <!-- Tabel sales -->
+                <controls:FloatingCard Style="{StaticResource Card}" Margin="0,10,0,0" IsVisible="{Binding IsTabSales}">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                            <Label Grid.Column="0" Text="Daftar sales" Style="{StaticResource SectionTitle}" />
+                            <Button Grid.Column="1" Text="+ Tambah sales" Style="{StaticResource PrimaryButton}" Command="{Binding TambahSalesCommand}" HeightRequest="36" />
+                        </Grid>
 
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding DaftarSales}" Spacing="0">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:Sales">
-                                <Grid ColumnDefinitions="40,1.2*,1*,1.2*" ColumnSpacing="8" Padding="8,10">
-                                    <Border Grid.Column="0" BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 18" WidthRequest="34" HeightRequest="34">
-                                        <Label Text="{Binding Inisial}" TextColor="{StaticResource PrimaryDark}" FontFamily="OpenSansSemibold" FontSize="11" HorizontalOptions="Center" VerticalOptions="Center" />
-                                    </Border>
-                                    <Label Grid.Column="1" Text="{Binding Nama}" Style="{StaticResource TableCell}" FontFamily="OpenSansSemibold" />
-                                    <Label Grid.Column="2" Text="{Binding Nip}" Style="{StaticResource TableCell}" />
-                                    <Label Grid.Column="3" Text="{Binding Wilayah}" Style="{StaticResource TableCell}" />
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+                        <Grid ColumnDefinitions="40,1.2*,1*,1.2*" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
+                            <Label Grid.Column="1" Text="Nama" Style="{StaticResource TableHeader}" />
+                            <Label Grid.Column="2" Text="NIP" Style="{StaticResource TableHeader}" />
+                            <Label Grid.Column="3" Text="Wilayah" Style="{StaticResource TableHeader}" />
+                        </Grid>
+
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding DaftarSales}" Spacing="0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:Sales">
+                                    <Grid ColumnDefinitions="40,1.2*,1*,1.2*" ColumnSpacing="8" Padding="8,10">
+                                        <Border Grid.Column="0" BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 18" WidthRequest="34" HeightRequest="34">
+                                            <Label Text="{Binding Inisial}" TextColor="{StaticResource PrimaryDark}" FontFamily="OpenSansSemibold" FontSize="11" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        </Border>
+                                        <Label Grid.Column="1" Text="{Binding Nama}" Style="{StaticResource TableCell}" FontFamily="OpenSansSemibold" />
+                                        <Label Grid.Column="2" Text="{Binding Nip}" Style="{StaticResource TableCell}" />
+                                        <Label Grid.Column="3" Text="{Binding Wilayah}" Style="{StaticResource TableCell}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
-                </VerticalStackLayout>
-            </controls:FloatingCard>
+                </controls:FloatingCard>
 
-            <!-- Tabel toko -->
-            <controls:FloatingCard Style="{StaticResource Card}" Margin="0,10,0,0" IsVisible="{Binding IsTabToko}">
-                <VerticalStackLayout Spacing="0">
-                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
-                        <Label Grid.Column="0" Text="Daftar toko mitra" Style="{StaticResource SectionTitle}" />
-                        <Button Grid.Column="1" Text="+ Tambah toko" Style="{StaticResource PrimaryButton}" Command="{Binding TambahTokoCommand}" HeightRequest="36" />
-                    </Grid>
+                <!-- Tabel toko -->
+                <controls:FloatingCard Style="{StaticResource Card}" Margin="0,10,0,0" IsVisible="{Binding IsTabToko}">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                            <Label Grid.Column="0" Text="Daftar toko mitra" Style="{StaticResource SectionTitle}" />
+                            <Button Grid.Column="1" Text="+ Tambah toko" Style="{StaticResource PrimaryButton}" Command="{Binding TambahTokoCommand}" HeightRequest="36" />
+                        </Grid>
 
-                    <Grid ColumnDefinitions="1*,1.2*,1.6*,90" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
-                        <Label Grid.Column="0" Text="Kode" Style="{StaticResource TableHeader}" />
-                        <Label Grid.Column="1" Text="Nama toko" Style="{StaticResource TableHeader}" />
-                        <Label Grid.Column="2" Text="Alamat" Style="{StaticResource TableHeader}" />
-                        <Label Grid.Column="3" Text="Radius" Style="{StaticResource TableHeader}" />
-                    </Grid>
+                        <Grid ColumnDefinitions="1*,1.2*,1.6*,90" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
+                            <Label Grid.Column="0" Text="Kode" Style="{StaticResource TableHeader}" />
+                            <Label Grid.Column="1" Text="Nama toko" Style="{StaticResource TableHeader}" />
+                            <Label Grid.Column="2" Text="Alamat" Style="{StaticResource TableHeader}" />
+                            <Label Grid.Column="3" Text="Radius" Style="{StaticResource TableHeader}" />
+                        </Grid>
 
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding DaftarToko}" Spacing="0">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:Toko">
-                                <Grid ColumnDefinitions="1*,1.2*,1.6*,90" ColumnSpacing="8" Padding="8,10">
-                                    <Label Grid.Column="0" Text="{Binding KodeToko}" Style="{StaticResource TableCell}" FontFamily="OpenSansSemibold" />
-                                    <Label Grid.Column="1" Text="{Binding NamaToko}" Style="{StaticResource TableCell}" />
-                                    <Label Grid.Column="2" Text="{Binding Alamat}" Style="{StaticResource TableCell}" />
-                                    <Label Grid.Column="3" Text="{Binding RadiusMeter, StringFormat='{0:F0} m'}" Style="{StaticResource TableCell}" />
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding DaftarToko}" Spacing="0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:Toko">
+                                    <Grid ColumnDefinitions="1*,1.2*,1.6*,90" ColumnSpacing="8" Padding="8,10">
+                                        <Label Grid.Column="0" Text="{Binding KodeToko}" Style="{StaticResource TableCell}" FontFamily="OpenSansSemibold" />
+                                        <Label Grid.Column="1" Text="{Binding NamaToko}" Style="{StaticResource TableCell}" />
+                                        <Label Grid.Column="2" Text="{Binding Alamat}" Style="{StaticResource TableCell}" />
+                                        <Label Grid.Column="3" Text="{Binding RadiusMeter, StringFormat='{0:F0} m'}" Style="{StaticResource TableCell}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
-                </VerticalStackLayout>
-            </controls:FloatingCard>
+                </controls:FloatingCard>
 
-        </VerticalStackLayout>
-    </ScrollView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Overlay form tambah sales -->
+        <Grid IsVisible="{Binding IsFormSalesTerbuka}" BackgroundColor="#A6000000">
+            <ScrollView Padding="24">
+                <controls:FloatingCard Style="{StaticResource Card}"
+                                       Padding="24"
+                                       MaximumWidthRequest="640"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                <Label Text="Tambah sales" Style="{StaticResource SectionTitle}" FontSize="20" />
+                                <Label Text="Lengkapi data akun sales yang akan memakai aplikasi mobile." Style="{StaticResource PageSubtitle}" FontSize="12" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="X"
+                                    Command="{Binding BatalSalesCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource TextSecondary}"
+                                    FontSize="18"
+                                    WidthRequest="36"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    VerticalOptions="Start" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto"
+                              ColumnSpacing="12" RowSpacing="10">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+                                <Label Text="NIP *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormSalesNip}" Placeholder="SLS-025" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
+                                <Label Text="Nama lengkap *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormSalesNama}" Placeholder="Nama sales" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
+                                <Label Text="Username *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormSalesUsername}" Placeholder="nama.sales" IsSpellCheckEnabled="False" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+                                <Label Text="Password *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormSalesPassword}" Placeholder="Minimal 6 karakter" IsPassword="True" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="4">
+                                <Label Text="Wilayah penjualan *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormSalesWilayah}" Placeholder="Surabaya Pusat" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
+                                <Label Text="Foto referensi wajah" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormSalesFoto}" Placeholder="nama_sales.jpg" />
+                                </Border>
+                                <Label Text="Opsional. Letakkan file di folder reference_faces." Style="{StaticResource FormHint}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Border IsVisible="{Binding AdaErrorSales}"
+                                BackgroundColor="{StaticResource DangerBg}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="12,9">
+                            <Label Text="{Binding PesanErrorSales}"
+                                   TextColor="{StaticResource Danger}"
+                                   FontSize="12" />
+                        </Border>
+
+                        <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="10">
+                            <Button Grid.Column="0" Text="Batal" Style="{StaticResource SecondaryButton}" Command="{Binding BatalSalesCommand}" />
+                            <Button Grid.Column="1" Text="Simpan sales" Style="{StaticResource PrimaryButton}" Command="{Binding SimpanSalesCommand}" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </controls:FloatingCard>
+            </ScrollView>
+        </Grid>
+
+        <!-- Overlay form tambah toko -->
+        <Grid IsVisible="{Binding IsFormTokoTerbuka}" BackgroundColor="#A6000000">
+            <ScrollView Padding="24">
+                <controls:FloatingCard Style="{StaticResource Card}"
+                                       Padding="24"
+                                       MaximumWidthRequest="680"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                <Label Text="Tambah toko" Style="{StaticResource SectionTitle}" FontSize="20" />
+                                <Label Text="Lengkapi data toko mitra beserta koordinat GPS dan radius absensi." Style="{StaticResource PageSubtitle}" FontSize="12" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="X"
+                                    Command="{Binding BatalTokoCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource TextSecondary}"
+                                    FontSize="18"
+                                    WidthRequest="36"
+                                    HeightRequest="36"
+                                    Padding="0"
+                                    VerticalOptions="Start" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto"
+                              ColumnSpacing="12" RowSpacing="10">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+                                <Label Text="Kode toko *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormTokoKode}" Placeholder="TK-090" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
+                                <Label Text="Nama toko *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormTokoNama}" Placeholder="Nama toko mitra" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+                                <Label Text="Alamat *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormTokoAlamat}" Placeholder="Jalan, nomor, kota" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="4">
+                                <Label Text="Pemilik" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormTokoPemilik}" Placeholder="Nama pemilik" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
+                                <Label Text="Telepon" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormTokoTelepon}" Placeholder="0812 3456 7890" Keyboard="Telephone" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="4">
+                                <Label Text="Latitude *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormTokoLatitude}" Placeholder="-7.2575" Keyboard="Numeric" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4">
+                                <Label Text="Longitude *" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormTokoLongitude}" Placeholder="112.7521" Keyboard="Numeric" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Radius absensi (meter) *" Style="{StaticResource FormLabel}" />
+                            <Border Style="{StaticResource InputCard}" HorizontalOptions="Start" WidthRequest="180">
+                                <Entry Text="{Binding FormTokoRadius}" Placeholder="100" Keyboard="Numeric" />
+                            </Border>
+                            <Label Text="Sales dianggap valid jika berada dalam radius ini dari titik toko." Style="{StaticResource FormHint}" />
+                        </VerticalStackLayout>
+
+                        <Border IsVisible="{Binding AdaErrorToko}"
+                                BackgroundColor="{StaticResource DangerBg}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="12,9">
+                            <Label Text="{Binding PesanErrorToko}"
+                                   TextColor="{StaticResource Danger}"
+                                   FontSize="12" />
+                        </Border>
+
+                        <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="10">
+                            <Button Grid.Column="0" Text="Batal" Style="{StaticResource SecondaryButton}" Command="{Binding BatalTokoCommand}" />
+                            <Button Grid.Column="1" Text="Simpan toko" Style="{StaticResource PrimaryButton}" Command="{Binding SimpanTokoCommand}" />
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </controls:FloatingCard>
+            </ScrollView>
+        </Grid>
+
+    </Grid>
 </ContentPage>

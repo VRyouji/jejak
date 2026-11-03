@@ -32,7 +32,7 @@ public partial class WorkspacePage : ContentPage
         }
 
         if (ContentFrame.Content is null)
-            BukaMonitoring();
+            BukaDashboard();
     }
 
     private void OnNavigated(Type pageType, object? parameter)
@@ -59,14 +59,20 @@ public partial class WorkspacePage : ContentPage
     {
         switch (bindingContext)
         {
+            case ViewModels.HrDashboardViewModel dvm:
+                _ = dvm.MuatAsync();
+                break;
+            case ViewModels.HrPerizinanViewModel pvm:
+                _ = pvm.MuatAsync();
+                break;
             case ViewModels.MonitoringViewModel mvm:
                 _ = mvm.MuatAsync();
                 break;
             case ViewModels.LaporanHrViewModel lvm:
                 _ = lvm.MuatAsync();
                 break;
-            case ViewModels.DetailKunjunganViewModel dvm:
-                _ = dvm.MuatAsync();
+            case ViewModels.DetailKunjunganViewModel dkvm:
+                _ = dkvm.MuatAsync();
                 break;
             case ViewModels.ApprovalViewModel avm:
                 _ = avm.MuatAsync();
@@ -74,13 +80,22 @@ public partial class WorkspacePage : ContentPage
             case ViewModels.MasterDataViewModel vmaster:
                 _ = vmaster.MuatAsync();
                 break;
-            case ViewModels.PayrollViewModel pvm:
-                _ = pvm.MuatAsync();
+            case ViewModels.PayrollViewModel payvm:
+                _ = payvm.MuatAsync();
                 break;
         }
     }
 
     // ---- Menu sidebar ----
+
+    private void BukaDashboard()
+    {
+        LabelBreadcrumb.Text = "Ringkasan / Dashboard HR";
+        SorotMenu(ItemDashboard);
+        OnNavigated(typeof(HrDashboardPage), null);
+    }
+
+    private void MenuDashboard_Tapped(object? sender, TappedEventArgs e) => BukaDashboard();
 
     private void BukaMonitoring()
     {
@@ -100,9 +115,9 @@ public partial class WorkspacePage : ContentPage
 
     private void MenuApproval_Tapped(object? sender, TappedEventArgs e)
     {
-        LabelBreadcrumb.Text = "Kepegawaian / Permohonan cuti & izin";
+        LabelBreadcrumb.Text = "Kepegawaian / Perizinan HR & sales";
         SorotMenu(ItemApproval);
-        OnNavigated(typeof(ApprovalPage), null);
+        OnNavigated(typeof(HrPerizinanPage), null);
     }
 
     private void MenuMaster_Tapped(object? sender, TappedEventArgs e)
@@ -137,7 +152,7 @@ public partial class WorkspacePage : ContentPage
         Color ikonNormal = (Color)warna["TextSecondary"];
         Color teksNormal = (Color)warna["TextPrimary"];
 
-        foreach (var item in new FloatingCard[] { ItemAbsensi, ItemLaporan, ItemApproval, ItemMaster, ItemPayroll })
+        foreach (var item in new FloatingCard[] { ItemDashboard, ItemAbsensi, ItemLaporan, ItemApproval, ItemMaster, ItemPayroll })
         {
             bool dipilih = ReferenceEquals(item, aktif);
 

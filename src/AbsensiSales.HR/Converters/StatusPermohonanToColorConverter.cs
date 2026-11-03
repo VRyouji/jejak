@@ -10,8 +10,8 @@ public class StatusPermohonanToColorConverter : IValueConverter
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         (value as string) switch
         {
-            "Disetujui" => Color.FromArgb("#3F9160"),
-            "Ditolak" => Color.FromArgb("#C6402F"),
+            "Approved" or "Disetujui" or "Hadir" or "Tersimpan" => Color.FromArgb("#3F9160"),
+            "Rejected" or "Ditolak" or "Tidak hadir" => Color.FromArgb("#C6402F"),
             _ => Color.FromArgb("#B07C00")
         };
 

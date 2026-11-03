@@ -16,6 +16,13 @@ public class TokoRepository
         return await conn.Table<Toko>().OrderBy(t => t.NamaToko).ToListAsync();
     }
 
+    public async Task<int> TambahAsync(Toko toko)
+    {
+        var conn = await _db.GetConnectionAsync();
+        await conn.InsertAsync(toko);
+        return toko.Id;
+    }
+
     public async Task<Toko?> GetByKodeAsync(string kodeToko)
     {
         var conn = await _db.GetConnectionAsync();

@@ -17,32 +17,52 @@
             <!-- Kartu statistik -->
             <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6" Margin="0,0,0,10">
                 <controls:FloatingCard Grid.Column="0" Style="{StaticResource StatCard}">
-                    <VerticalStackLayout Spacing="3">
-                        <Label Text="Total sales" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Label Text="{Binding TotalSales}" FontSize="28" FontFamily="OpenSansSemibold" />
-                        <Label Text="Tim Jawa Timur" FontSize="11" TextColor="{StaticResource TextSecondary}" />
-                    </VerticalStackLayout>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="Total sales" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                            <Label Text="{Binding TotalSales}" FontSize="28" FontFamily="OpenSansSemibold" />
+                            <Label Text="Tim Jawa Timur" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Style="{StaticResource StatIconBubble}" BackgroundColor="{StaticResource InfoBg}">
+                            <Label Text="&#xf233;" Style="{StaticResource StatIcon}" TextColor="{StaticResource PrimaryDark}" />
+                        </Border>
+                    </Grid>
                 </controls:FloatingCard>
                 <controls:FloatingCard Grid.Column="1" Style="{StaticResource StatCard}">
-                    <VerticalStackLayout Spacing="3">
-                        <Label Text="Hadir" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Label Text="{Binding JumlahHadir}" FontSize="28" FontFamily="OpenSansSemibold" TextColor="{StaticResource Success}" />
-                        <Label Text="{Binding PersenHadir}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
-                    </VerticalStackLayout>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="Hadir" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                            <Label Text="{Binding JumlahHadir}" FontSize="28" FontFamily="OpenSansSemibold" TextColor="{StaticResource Success}" />
+                            <Label Text="{Binding PersenHadir}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Style="{StaticResource StatIconBubble}" BackgroundColor="{StaticResource SuccessBg}">
+                            <Label Text="&#xe86c;" Style="{StaticResource StatIcon}" TextColor="{StaticResource Success}" />
+                        </Border>
+                    </Grid>
                 </controls:FloatingCard>
                 <controls:FloatingCard Grid.Column="2" Style="{StaticResource StatCard}">
-                    <VerticalStackLayout Spacing="3">
-                        <Label Text="Belum absen" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Label Text="{Binding JumlahBelumAbsen}" FontSize="28" FontFamily="OpenSansSemibold" TextColor="{StaticResource Warning}" />
-                        <Label Text="Perlu tindak lanjut" FontSize="11" TextColor="{StaticResource TextSecondary}" />
-                    </VerticalStackLayout>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="Belum absen" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                            <Label Text="{Binding JumlahBelumAbsen}" FontSize="28" FontFamily="OpenSansSemibold" TextColor="{StaticResource Warning}" />
+                            <Label Text="Perlu tindak lanjut" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Style="{StaticResource StatIconBubble}" BackgroundColor="{StaticResource WarningBg}">
+                            <Label Text="&#xe510;" Style="{StaticResource StatIcon}" TextColor="{StaticResource Warning}" />
+                        </Border>
+                    </Grid>
                 </controls:FloatingCard>
                 <controls:FloatingCard Grid.Column="3" Style="{StaticResource StatCard}">
-                    <VerticalStackLayout Spacing="3">
-                        <Label Text="Kunjungan tercatat" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Label Text="{Binding KunjunganTercatat}" FontSize="28" FontFamily="OpenSansSemibold" TextColor="{StaticResource PrimaryDark}" />
-                        <Label Text="Hari ini" FontSize="11" TextColor="{StaticResource TextSecondary}" />
-                    </VerticalStackLayout>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="Kunjungan tercatat" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                            <Label Text="{Binding KunjunganTercatat}" FontSize="28" FontFamily="OpenSansSemibold" TextColor="{StaticResource PrimaryDark}" />
+                            <Label Text="Hari ini" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Style="{StaticResource StatIconBubble}" BackgroundColor="{StaticResource InfoBg}">
+                            <Label Text="&#xea12;" Style="{StaticResource StatIcon}" TextColor="{StaticResource PrimaryDark}" />
+                        </Border>
+                    </Grid>
                 </controls:FloatingCard>
             </Grid>
 
@@ -72,7 +92,22 @@
                                         <Label Text="{Binding Nama}" FontFamily="OpenSansSemibold" FontSize="13" />
                                         <Label Text="{Binding Nip, StringFormat='{0} - Surabaya Pusat'}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="2" Text="{Binding Status}" Style="{StaticResource BadgeSuccess}" HorizontalOptions="Start" />
+                                    <Border Grid.Column="2"
+                                            BackgroundColor="{Binding Status, Converter={StaticResource StatusPermohonanToBackgroundConverter}}"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 8"
+                                            Padding="10,4"
+                                            HorizontalOptions="Start"
+                                            VerticalOptions="Center">
+                                        <HorizontalStackLayout Spacing="6">
+                                            <Border Style="{StaticResource StatusDot}"
+                                                    BackgroundColor="{Binding Status, Converter={StaticResource StatusPermohonanToColorConverter}}" />
+                                            <Label Text="{Binding Status}"
+                                                   TextColor="{Binding Status, Converter={StaticResource StatusPermohonanToColorConverter}}"
+                                                   FontFamily="OpenSansSemibold"
+                                                   FontSize="12" />
+                                        </HorizontalStackLayout>
+                                    </Border>
                                     <Label Grid.Column="3" Text="{Binding Waktu}" Style="{StaticResource TableCell}" />
                                 </Grid>
                             </DataTemplate>

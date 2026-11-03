@@ -18,6 +18,7 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIcons");
             });
 
 #if DEBUG
@@ -33,6 +34,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<PermohonanRepository>();
         builder.Services.AddSingleton<SessionService>();
         builder.Services.AddSingleton<AbsensiSales.HR.Services.HrNavigationService>();
+        builder.Services.AddSingleton<AbsensiSales.HR.Services.PdfService>();
 
         // Shell
         builder.Services.AddSingleton<AppShell>();
@@ -44,6 +46,8 @@ public static class MauiProgram
         builder.Services.AddTransient<LaporanHrViewModel>();
         builder.Services.AddTransient<DetailKunjunganViewModel>();
         builder.Services.AddTransient<ApprovalViewModel>();
+        builder.Services.AddTransient<HrDashboardViewModel>();
+        builder.Services.AddTransient<HrPerizinanViewModel>();
         builder.Services.AddTransient<MasterDataViewModel>();
         builder.Services.AddTransient<PayrollViewModel>();
 
@@ -55,6 +59,8 @@ public static class MauiProgram
         builder.Services.AddTransient<LaporanHrPage>();
         builder.Services.AddTransient<DetailKunjunganPage>();
         builder.Services.AddTransient<ApprovalPage>();
+        builder.Services.AddTransient<HrDashboardPage>();
+        builder.Services.AddTransient<HrPerizinanPage>();
         builder.Services.AddTransient<MasterDataPage>();
         builder.Services.AddTransient<PayrollPage>();
 
