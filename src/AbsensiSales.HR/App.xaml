@@ -13,6 +13,7 @@
 
             <converters:BoolToBadgeConverter x:Key="BoolToBadgeConverter" />
             <converters:StatusPermohonanToColorConverter x:Key="StatusPermohonanToColorConverter" />
+            <converters:StatusPermohonanToBackgroundConverter x:Key="StatusPermohonanToBackgroundConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

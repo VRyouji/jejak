@@ -26,10 +26,20 @@
                     <Label Text="MENU" TextColor="{StaticResource TextSecondary}" FontSize="11" FontFamily="OpenSansSemibold" Margin="12,0,0,6" />
 
                     <!-- Item menu -->
-                    <controls:FloatingCard x:Name="ItemAbsensi" Style="{StaticResource MenuItemActive}" Margin="0,1">
+                    <controls:FloatingCard x:Name="ItemDashboard" Style="{StaticResource MenuItemActive}" Margin="0,1">
                         <HorizontalStackLayout Spacing="10">
-                            <Label Text="A" TextColor="{StaticResource OnPrimary}" FontSize="14" />
-                            <Label x:Name="LabelAbsensi" Text="Absensi" TextColor="{StaticResource OnPrimary}" FontFamily="OpenSansSemibold" FontSize="14" VerticalOptions="Center" />
+                            <Label x:Name="IkonDashboard" Text="&#xe871;" Style="{StaticResource MenuIcon}" TextColor="{StaticResource OnPrimary}" />
+                            <Label x:Name="LabelDashboard" Text="Dashboard" TextColor="{StaticResource OnPrimary}" FontFamily="OpenSansSemibold" FontSize="14" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <controls:FloatingCard.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="MenuDashboard_Tapped" />
+                        </controls:FloatingCard.GestureRecognizers>
+                    </controls:FloatingCard>
+
+                    <controls:FloatingCard x:Name="ItemAbsensi" Style="{StaticResource MenuItem}" Margin="0,1">
+                        <HorizontalStackLayout Spacing="10">
+                            <Label Text="&#xf0c5;" Style="{StaticResource MenuIcon}" />
+                            <Label x:Name="LabelAbsensi" Text="Absensi" TextColor="{StaticResource TextPrimary}" FontFamily="OpenSansSemibold" FontSize="14" VerticalOptions="Center" />
                         </HorizontalStackLayout>
                         <controls:FloatingCard.GestureRecognizers>
                             <TapGestureRecognizer Tapped="MenuAbsensi_Tapped" />
@@ -38,7 +48,7 @@
 
                     <controls:FloatingCard x:Name="ItemLaporan" Style="{StaticResource MenuItem}" Margin="0,1">
                         <HorizontalStackLayout Spacing="10">
-                            <Label x:Name="IkonLaporan" Text="L" TextColor="{StaticResource TextSecondary}" FontSize="14" />
+                            <Label x:Name="IkonLaporan" Text="&#xe873;" Style="{StaticResource MenuIcon}" />
                             <Label x:Name="LabelLaporan" Text="Laporan" TextColor="{StaticResource TextPrimary}" FontSize="14" VerticalOptions="Center" />
                         </HorizontalStackLayout>
                         <controls:FloatingCard.GestureRecognizers>
@@ -50,8 +60,8 @@
 
                     <controls:FloatingCard x:Name="ItemApproval" Style="{StaticResource MenuItem}" Margin="0,1">
                         <HorizontalStackLayout Spacing="10">
-                            <Label x:Name="IkonApproval" Text="P" TextColor="{StaticResource TextSecondary}" FontSize="14" />
-                            <Label x:Name="LabelApproval" Text="Permohonan" TextColor="{StaticResource TextPrimary}" FontSize="14" VerticalOptions="Center" />
+                            <Label x:Name="IkonApproval" Text="&#xe614;" Style="{StaticResource MenuIcon}" />
+                            <Label x:Name="LabelApproval" Text="Perizinan" TextColor="{StaticResource TextPrimary}" FontSize="14" VerticalOptions="Center" />
                         </HorizontalStackLayout>
                         <controls:FloatingCard.GestureRecognizers>
                             <TapGestureRecognizer Tapped="MenuApproval_Tapped" />
@@ -60,7 +70,7 @@
 
                     <controls:FloatingCard x:Name="ItemMaster" Style="{StaticResource MenuItem}" Margin="0,1">
                         <HorizontalStackLayout Spacing="10">
-                            <Label x:Name="IkonMaster" Text="M" TextColor="{StaticResource TextSecondary}" FontSize="14" />
+                            <Label x:Name="IkonMaster" Text="&#xe1a1;" Style="{StaticResource MenuIcon}" />
                             <Label x:Name="LabelMaster" Text="Data master" TextColor="{StaticResource TextPrimary}" FontSize="14" VerticalOptions="Center" />
                         </HorizontalStackLayout>
                         <controls:FloatingCard.GestureRecognizers>
@@ -70,7 +80,7 @@
 
                     <controls:FloatingCard x:Name="ItemPayroll" Style="{StaticResource MenuItem}" Margin="0,1">
                         <HorizontalStackLayout Spacing="10">
-                            <Label x:Name="IkonPayroll" Text="Rp" TextColor="{StaticResource TextSecondary}" FontSize="12" FontFamily="OpenSansSemibold" />
+                            <Label x:Name="IkonPayroll" Text="&#xef63;" Style="{StaticResource MenuIcon}" />
                             <Label x:Name="LabelPayroll" Text="Payroll" TextColor="{StaticResource TextPrimary}" FontSize="14" VerticalOptions="Center" />
                         </HorizontalStackLayout>
                         <controls:FloatingCard.GestureRecognizers>
@@ -89,7 +99,7 @@
 
                     <Border BackgroundColor="Transparent" StrokeThickness="0" Padding="12,8">
                         <HorizontalStackLayout Spacing="8">
-                            <Label Text="X" TextColor="{StaticResource TextSecondary}" FontSize="13" />
+                            <Label Text="&#xe9ba;" FontFamily="MaterialIcons" FontSize="16" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
                             <Label Text="Keluar" TextColor="{StaticResource TextSecondary}" FontSize="13">
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="Logout_Tapped" />

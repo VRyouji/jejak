@@ -11,68 +11,129 @@
     <ScrollView>
         <VerticalStackLayout Padding="28,20" Spacing="0">
 
+            <!-- Header -->
             <Label Text="Perhitungan gaji (payroll)" Style="{StaticResource PageTitle}" Margin="0,0,0,4" />
             <Label Text="Rekapitulasi gaji dihitung otomatis dari hari kerja, jumlah kunjungan toko, dan potongan izin/cuti." Style="{StaticResource PageSubtitle}" Margin="0,0,0,16" />
 
-            <!-- Parameter -->
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6" Margin="0,0,0,10">
+            <!-- Kartu ringkasan -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,0,0,10">
                 <controls:FloatingCard Grid.Column="0" Style="{StaticResource StatCard}">
                     <VerticalStackLayout Spacing="3">
                         <Label Text="Periode" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Label Text="{Binding Periode}" FontFamily="OpenSansSemibold" FontSize="16" />
+                        <Label Text="{Binding Periode}" FontFamily="OpenSansSemibold" FontSize="18" />
+                        <Label Text="Rekap bulanan" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
                 </controls:FloatingCard>
                 <controls:FloatingCard Grid.Column="1" Style="{StaticResource StatCard}">
                     <VerticalStackLayout Spacing="3">
                         <Label Text="Hari kerja" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Label Text="{Binding TotalHariKerja}" FontFamily="OpenSansSemibold" FontSize="16" />
+                        <Label Text="{Binding TotalHariKerja}" FontFamily="OpenSansSemibold" FontSize="18" />
+                        <Label Text="Standar kerja sebulan" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
                 </controls:FloatingCard>
                 <controls:FloatingCard Grid.Column="2" Style="{StaticResource StatCard}">
                     <VerticalStackLayout Spacing="3">
                         <Label Text="Target kunjungan" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Label Text="{Binding TotalKunjunganTarget}" FontFamily="OpenSansSemibold" FontSize="16" TextColor="{StaticResource PrimaryDark}" />
+                        <Label Text="{Binding TotalKunjunganTarget}" FontFamily="OpenSansSemibold" FontSize="18" TextColor="{StaticResource PrimaryDark}" />
+                        <Label Text="8 toko x 22 hari" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
                 </controls:FloatingCard>
             </Grid>
 
-            <!-- Aksi -->
+            <!-- Action bar -->
             <controls:FloatingCard Style="{StaticResource Card}" Padding="16">
                 <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10">
-                    <Label Grid.Column="0" Text="{Binding RekapSiap}" FontSize="13" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
-                    <Button Grid.Column="1" Text="Hitung ulang" Style="{StaticResource SecondaryButton}" Command="{Binding HitungUlangCommand}" />
-                    <Button Grid.Column="2" Text="Setujui rekap" Style="{StaticResource PrimaryButton}" Command="{Binding SetujuiRekapCommand}" />
-                    <Button Grid.Column="3" Text="Cetak slip" Style="{StaticResource SecondaryButton}" Command="{Binding CetakSlipCommand}" />
+                    <Label Grid.Column="0"
+                           Text="{Binding RekapSiap}"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}"
+                           VerticalOptions="Center" />
+                    <Button Grid.Column="1"
+                            Text="Hitung ulang"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding HitungUlangCommand}" />
+                    <Button Grid.Column="2"
+                            Text="Setujui rekap"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding SetujuiRekapCommand}" />
+                    <Button Grid.Column="3"
+                            Text="Cetak slip"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CetakSlipCommand}" />
                 </Grid>
             </controls:FloatingCard>
 
-            <!-- Tabel gaji -->
+            <!-- Tabel rekapitulasi gaji -->
             <controls:FloatingCard Style="{StaticResource Card}" Margin="0,10,0,0">
                 <VerticalStackLayout Spacing="0">
                     <Label Text="Rekapitulasi gaji per sales" Style="{StaticResource SectionTitle}" Margin="0,0,0,10" />
 
-                    <Grid ColumnDefinitions="1.4*,80,90,100,90,1.1*" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
+                    <Grid ColumnDefinitions="1.4*,80,90,100,110,1.1*,80"
+                          ColumnSpacing="8"
+                          BackgroundColor="{StaticResource SurfaceAlt}"
+                          Padding="8,6">
                         <Label Grid.Column="0" Text="Sales" Style="{StaticResource TableHeader}" />
                         <Label Grid.Column="1" Text="Hari kerja" Style="{StaticResource TableHeader}" />
                         <Label Grid.Column="2" Text="Kunjungan" Style="{StaticResource TableHeader}" />
                         <Label Grid.Column="3" Text="Izin / cuti" Style="{StaticResource TableHeader}" />
                         <Label Grid.Column="4" Text="Status" Style="{StaticResource TableHeader}" />
                         <Label Grid.Column="5" Text="Gaji akhir" Style="{StaticResource TableHeader}" />
+                        <Label Grid.Column="6" Text="Slip" Style="{StaticResource TableHeader}" />
                     </Grid>
 
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding DaftarGaji}" Spacing="0">
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="vm:PayrollItem">
-                                <Grid ColumnDefinitions="1.4*,80,90,100,90,1.1*" ColumnSpacing="8" Padding="8,10">
+                                <Grid ColumnDefinitions="1.4*,80,90,100,110,1.1*,80"
+                                      ColumnSpacing="8"
+                                      Padding="8,10">
                                     <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
-                                        <Label Text="{Binding Nama}" FontFamily="OpenSansSemibold" FontSize="13" />
-                                        <Label Text="{Binding Nip}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                        <Label Text="{Binding NamaSales}" FontFamily="OpenSansSemibold" FontSize="13" />
+                                        <Label Text="{Binding KodeSales}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                                     </VerticalStackLayout>
-                                    <Label Grid.Column="1" Text="{Binding HariKerja, StringFormat='{0} hari'}" Style="{StaticResource TableCell}" />
-                                    <Label Grid.Column="2" Text="{Binding KunjunganTercatat, StringFormat='{0} toko'}" Style="{StaticResource TableCell}" />
-                                    <Label Grid.Column="3" Text="{Binding IzinCuti, StringFormat='{0}x'}" Style="{StaticResource TableCell}" />
-                                    <Label Grid.Column="4" Text="{Binding StatusTarget}" Style="{StaticResource BadgeSuccess}" HorizontalOptions="Start" FontSize="11" />
-                                    <Label Grid.Column="5" Text="{Binding GajiAkhir, StringFormat='Rp {0:N0}'}" Style="{StaticResource TableCell}" FontFamily="OpenSansSemibold" TextColor="{StaticResource Navy}" />
+
+                                    <Label Grid.Column="1"
+                                           Text="{Binding HariKerja, StringFormat='{0} hari'}"
+                                           Style="{StaticResource TableCell}" />
+
+                                    <Label Grid.Column="2"
+                                           Text="{Binding KunjunganToko, StringFormat='{0} toko'}"
+                                           Style="{StaticResource TableCell}" />
+
+                                    <Label Grid.Column="3"
+                                           Text="{Binding JumlahIzin, StringFormat='{0}x'}"
+                                           Style="{StaticResource TableCell}" />
+
+                                    <Label Grid.Column="4"
+                                           Text="{Binding StatusTarget}"
+                                           Style="{StaticResource BadgeWarning}"
+                                           HorizontalOptions="Start"
+                                           FontSize="11">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label"
+                                                         Binding="{Binding StatusTarget}"
+                                                         Value="Target tercapai">
+                                                <Setter Property="TextColor" Value="{StaticResource Success}" />
+                                                <Setter Property="BackgroundColor" Value="{StaticResource SuccessBg}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+
+                                    <Label Grid.Column="5"
+                                           Text="{Binding TotalGajiText}"
+                                           Style="{StaticResource TableCell}"
+                                           FontFamily="OpenSansSemibold"
+                                           TextColor="{StaticResource Navy}" />
+
+                                    <Button Grid.Column="6"
+                                            Text="Cetak"
+                                            Style="{StaticResource SecondaryButton}"
+                                            FontSize="11"
+                                            HeightRequest="32"
+                                            Padding="8,0"
+                                            HorizontalOptions="Fill"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PayrollViewModel}, Mode=FindAncestorBindingContext}, Path=CetakSlipCommand}"
+                                            CommandParameter="{Binding .}" />
                                 </Grid>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="AbsensiSales.HR.Views.HrPerizinanPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:AbsensiSales.HR.ViewModels"
+    xmlns:controls="clr-namespace:AbsensiSales.HR.Controls"
+    x:DataType="vm:HrPerizinanViewModel"
+    Title="Perizinan HR &amp; Sales">
+
+    <Grid Padding="28,20" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12">
+
+        <!-- Judul halaman -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                <Label Text="Perizinan HR &amp; sales" Style="{StaticResource PageTitle}" />
+                <Label Text="Tinjau pengajuan cuti, izin, dan keperluan pribadi dari tim sales maupun HR." Style="{StaticResource PageSubtitle}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="Segarkan"
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding SegarkanCommand}"
+                    VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Ringkasan -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+            <controls:FloatingCard Grid.Column="0" Style="{StaticResource StatCard}">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="Total pengajuan" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                    <Label Text="{Binding TotalPerizinan}" FontSize="26" FontFamily="OpenSansSemibold" />
+                </VerticalStackLayout>
+            </controls:FloatingCard>
+            <controls:FloatingCard Grid.Column="1" Style="{StaticResource StatCard}">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="Pending" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                    <Label Text="{Binding JumlahPending}" FontSize="26" FontFamily="OpenSansSemibold" TextColor="{StaticResource Warning}" />
+                </VerticalStackLayout>
+            </controls:FloatingCard>
+            <controls:FloatingCard Grid.Column="2" Style="{StaticResource StatCard}">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="Approved" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                    <Label Text="{Binding JumlahDisetujui}" FontSize="26" FontFamily="OpenSansSemibold" TextColor="{StaticResource Success}" />
+                </VerticalStackLayout>
+            </controls:FloatingCard>
+            <controls:FloatingCard Grid.Column="3" Style="{StaticResource StatCard}">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="Rejected" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                    <Label Text="{Binding JumlahDitolak}" FontSize="26" FontFamily="OpenSansSemibold" TextColor="{StaticResource Danger}" />
+                </VerticalStackLayout>
+            </controls:FloatingCard>
+        </Grid>
+
+        <!-- Info terakhir diperbarui -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+            <Label Grid.Column="0" Text="Daftar pengajuan" Style="{StaticResource SectionTitle}" VerticalOptions="Center" />
+            <Label Grid.Column="1" Text="{Binding UpdatePada}" FontSize="12" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Daftar perizinan -->
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding DaftarPerizinan}"
+                        SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.EmptyView>
+                <controls:FloatingCard Style="{StaticResource Card}">
+                    <Label Text="Belum ada pengajuan perizinan."
+                           Style="{StaticResource PageSubtitle}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </controls:FloatingCard>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:PermohonanItem">
+                    <controls:FloatingCard Style="{StaticResource Card}" Padding="18">
+                        <VerticalStackLayout Spacing="12">
+
+                            <!-- Identitas karyawan & status -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border Grid.Column="0"
+                                        BackgroundColor="{StaticResource InfoBg}"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 20"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        VerticalOptions="Start">
+                                    <Label Text="{Binding Inisial}"
+                                           TextColor="{StaticResource PrimaryDark}"
+                                           FontFamily="OpenSansSemibold"
+                                           FontSize="13"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding NamaSales}" FontFamily="OpenSansSemibold" FontSize="16" />
+                                    <Label Text="{Binding Jabatan}" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding Nip, StringFormat='NIP {0}'}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+
+                                <Border Grid.Column="2"
+                                        BackgroundColor="{Binding StatusText, Converter={StaticResource StatusPermohonanToBackgroundConverter}}"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 8"
+                                        Padding="10,4"
+                                        VerticalOptions="Start">
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Border Style="{StaticResource StatusDot}"
+                                                BackgroundColor="{Binding StatusText, Converter={StaticResource StatusPermohonanToColorConverter}}" />
+                                        <Label Text="{Binding StatusText}"
+                                               TextColor="{Binding StatusText, Converter={StaticResource StatusPermohonanToColorConverter}}"
+                                               FontFamily="OpenSansSemibold"
+                                               FontSize="12" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </Grid>
+
+                            <!-- Jenis & rentang tanggal -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Jenis izin / cuti" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding Jenis}" FontSize="14" FontFamily="OpenSansSemibold" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="Rentang tanggal" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding Periode}" FontSize="14" />
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Alasan -->
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Alasan" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                <Label Text="{Binding Alasan}" FontSize="13" />
+                            </VerticalStackLayout>
+
+                            <!-- Lampiran & waktu pengajuan -->
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Label Grid.Column="0"
+                                       Text="{Binding Lampiran, StringFormat='Lampiran: {0}'}"
+                                       FontSize="12"
+                                       TextColor="{StaticResource PrimaryDark}" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding Diajukan, StringFormat='Diajukan {0}'}"
+                                       FontSize="12"
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </Grid>
+
+                            <!-- Catatan HR setelah diproses -->
+                            <Border IsVisible="{Binding Selesai}"
+                                    BackgroundColor="{StaticResource SurfaceAlt}"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="12,10">
+                                <Label Text="{Binding CatatanHr, StringFormat='Catatan HR: {0}'}"
+                                       FontSize="12"
+                                       TextColor="{StaticResource TextSecondary}" />
+                            </Border>
+
+                            <!-- Aksi approve / reject -->
+                            <Grid ColumnDefinitions="Auto,Auto,*"
+                                  ColumnSpacing="10"
+                                  IsVisible="{Binding Pending}">
+                                <Button Grid.Column="0"
+                                        Text="Approve"
+                                        Style="{StaticResource ApproveButton}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HrPerizinanViewModel}, Mode=FindAncestorBindingContext}, Path=ApproveCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Grid.Column="1"
+                                        Text="Reject"
+                                        Style="{StaticResource RejectButton}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HrPerizinanViewModel}, Mode=FindAncestorBindingContext}, Path=RejectCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+
+                        </VerticalStackLayout>
+                    </controls:FloatingCard>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

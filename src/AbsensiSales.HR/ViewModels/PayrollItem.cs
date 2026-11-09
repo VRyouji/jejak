@@ -1,14 +1,17 @@
+using System.Globalization;
+
 namespace AbsensiSales.HR.ViewModels;
 
 public partial class PayrollItem
 {
-    public required string Nama { get; init; }
-    public required string Nip { get; init; }
+    public required string NamaSales { get; init; }
+    public required string KodeSales { get; init; }
     public required int HariKerja { get; init; }
-    public required int KunjunganTercatat { get; init; }
-    public required int KunjunganTarget { get; init; }
-    public required int IzinCuti { get; init; }
-    public required decimal GajiAkhir { get; init; }
+    public required int KunjunganToko { get; init; }
+    public required int JumlahIzin { get; init; }
+    public required string StatusTarget { get; init; }
+    public required decimal TotalGaji { get; init; }
 
-    public string StatusTarget => KunjunganTercatat >= KunjunganTarget ? "Target tercapai" : "Belum tercapai";
+    public string TotalGajiText =>
+        $"Rp {TotalGaji.ToString("N0", CultureInfo.InvariantCulture)}";
 }
