@@ -13,3 +13,6 @@ models/*.xml
 reference_faces/*.jpg
 reference_faces/*.jpeg
 reference_faces/*.png
+
+# Data biometrik: token wajah (private)
+face_tokens.json
