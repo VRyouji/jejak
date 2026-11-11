@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AbsensiFaceAppToken.MainPage"
+             Title="Prototype Face Recognition">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+
+            <Label Text="Prototype Face Recognition (Token)"
+                   FontSize="22" FontAttributes="Bold" />
+
+            <Entry x:Name="NameEntry" Placeholder="Nama (untuk pendaftaran)" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                <Button Text="Daftar dari Galeri" Clicked="OnEnrollGallery" />
+                <Button Grid.Column="1" Text="Daftar dari Kamera" Clicked="OnEnrollCamera" />
+            </Grid>
+
+            <Button Text="Verifikasi Wajah (Kamera)" Clicked="OnVerify" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                <Button Text="Lihat Token" Clicked="OnListTokens" />
+                <Button Grid.Column="1" Text="Hapus Semua Token" Clicked="OnClearTokens" />
+            </Grid>
+
+            <ActivityIndicator x:Name="Busy" IsRunning="False" />
+
+            <Image x:Name="Preview" HeightRequest="260" Aspect="AspectFit" />
+
+            <Label x:Name="StatusLabel" Text="Siap." />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

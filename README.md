@@ -88,7 +88,18 @@ Jika file model belum tersedia, aplikasi otomatis memakai **mode simulasi** (ver
 - [OpenCvSharp4](https://github.com/shimat/opencvsharp) + [ONNX Runtime](https://onnxruntime.ai/) — deteksi & encoding wajah (model SFace)
 - [CommunityToolkit.Mvvm](https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/) — pola MVVM
 
+## Prototype Face Recognition (AbsensiFaceAppToken)
+Project di `src/AbsensiFaceAppToken` membuat token wajah dari foto (foto tidak disimpan).
+
+Unduh dua model berikut dan letakkan di `src/AbsensiFaceAppToken/Resources/Raw/` (tidak ikut di-commit):
+- `face_recognition_sface_2021dec.onnx` (github.com/opencv/opencv_zoo, folder models/face_recognition_sface)
+- `version-RFB-320.onnx` (github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB, folder models/onnx)
+
+Jalankan dari folder project: `dotnet build -t:Run -f net10.0-android`
+
 ## Catatan
 
 - Ini adalah proyek mockup kuliah: seluruh data tersimpan **lokal di perangkat masing-masing** (tidak ada backend/sinkronisasi antar device).
 - Password tersimpan plain text sebagai bagian dari mockup — jangan dipakai di produksi.
+
+   
