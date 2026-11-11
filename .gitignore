@@ -16,3 +16,5 @@ reference_faces/*.png
 
 # Data biometrik: token wajah (private)
 face_tokens.json
+# Model ONNX di folder mana pun (unduh manual, lihat README)
+*.onnx
