@@ -1,3 +1,4 @@
+using AbsensiSales.Core.Api;
 using AbsensiSales.Core.Services;
 using AbsensiSales.HR.Controls;
 using AbsensiSales.HR.Services;
@@ -9,13 +10,19 @@ public partial class WorkspacePage : ContentPage
 {
     private readonly HrNavigationService _nav;
     private readonly SessionService _session;
+    private readonly ApiService _api;
     private readonly IServiceProvider _services;
 
-    public WorkspacePage(HrNavigationService nav, SessionService session, IServiceProvider services)
+    public WorkspacePage(
+        HrNavigationService nav,
+        SessionService session,
+        ApiService api,
+        IServiceProvider services)
     {
         InitializeComponent();
         _nav = nav;
         _session = session;
+        _api = api;
         _services = services;
 
         _nav.Navigated += OnNavigated;
@@ -30,6 +37,15 @@ public partial class WorkspacePage : ContentPage
             await Shell.Current.GoToAsync("//login");
             return;
         }
+
+        var nama = string.IsNullOrWhiteSpace(_session.NamaPengguna)
+            ? "Admin HRD"
+            : _session.NamaPengguna;
+        LabelNamaPengguna.Text = nama;
+        LabelNamaAkun.Text = nama;
+        LabelEmailAkun.Text = string.IsNullOrWhiteSpace(_session.EmailPengguna)
+            ? "-"
+            : _session.EmailPengguna;
 
         if (ContentFrame.Content is null)
             BukaDashboard();
@@ -136,6 +152,16 @@ public partial class WorkspacePage : ContentPage
 
     private async void Logout_Tapped(object? sender, TappedEventArgs e)
     {
+        try
+        {
+            await _api.LogoutAsync();
+        }
+        catch
+        {
+            // Token lokal tetap dibersihkan walau server tidak dapat dihubungi.
+            _api.LogoutLokal();
+        }
+
         _session.Logout();
         _nav.Navigated -= OnNavigated;
         await Shell.Current.GoToAsync("//login");

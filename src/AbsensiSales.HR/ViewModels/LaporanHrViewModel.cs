@@ -1,27 +1,21 @@
 using System.Collections.ObjectModel;
-using AbsensiSales.Core.Models;
-using AbsensiSales.Core.Repositories;
+using System.Text;
+using AbsensiSales.Core.Api;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
 
 namespace AbsensiSales.HR.ViewModels;
 
 public partial class LaporanHrViewModel : ObservableObject
 {
-    private readonly KunjunganRepository _kunjunganRepo;
-    private readonly SalesRepository _salesRepo;
-    private readonly TokoRepository _tokoRepo;
+    private readonly ApiService _api;
     private readonly Services.HrNavigationService _nav;
+    private readonly List<KunjunganDto> _semua = new();
 
-    public LaporanHrViewModel(
-        KunjunganRepository kunjunganRepo,
-        SalesRepository salesRepo,
-        TokoRepository tokoRepo,
-        Services.HrNavigationService nav)
+    public LaporanHrViewModel(ApiService api, Services.HrNavigationService nav)
     {
-        _kunjunganRepo = kunjunganRepo;
-        _salesRepo = salesRepo;
-        _tokoRepo = tokoRepo;
+        _api = api;
         _nav = nav;
     }
 
@@ -49,84 +43,173 @@ public partial class LaporanHrViewModel : ObservableObject
     private string _filterStatus = "Semua status";
 
     public string[] PilihanStatus { get; } =
-        { "Semua status", "Tersimpan", "Gagal validasi", "Draf" };
+        { "Semua status", "Valid", "Pending", "Invalid" };
 
     [ObservableProperty]
     private KunjunganTabelItem? _kunjunganTerpilih;
 
+    [ObservableProperty]
+    private string _pesanError = string.Empty;
+
+    [ObservableProperty]
+    private bool _adaError;
+
     public async Task MuatAsync()
     {
-        var tanggal = DateTime.Now.ToString("yyyy-MM-dd");
-        JudulTanggal = DateTime.Now.ToString("dd MMMM yyyy");
+        var sekarang = DateTime.Now;
+        var periode = sekarang.ToString("yyyy-MM");
+        var tanggal = sekarang.ToString("yyyy-MM-dd");
+        JudulTanggal = ApiMapper.TanggalPanjang(sekarang);
 
-        var semuaKunjungan = await _kunjunganRepo.GetAllAsync(tanggal);
-        var semuaSales = await _salesRepo.GetAllAsync();
+        var hasilLaporan = await _api.GetLaporanKunjunganAsync(periode, tanggal);
+        var hasilSales = await _api.GetSalesAdminAsync();
 
-        int hadir = semuaSales
-            .Count(s => semuaKunjungan.Any(k => k.SalesId == s.Id));
-        SalesHadir = $"{hadir} / {semuaSales.Count}";
-        TotalKunjungan = semuaKunjungan.Count.ToString();
+        var pesan = new List<string>();
+        if (!hasilLaporan.Sukses) pesan.Add(hasilLaporan.Pesan);
+        if (!hasilSales.Sukses) pesan.Add(hasilSales.Pesan);
+        PesanError = string.Join(" ", pesan.Distinct());
+        AdaError = PesanError.Length > 0;
 
-        int tersimpan = semuaKunjungan.Count(k => k.Status == nameof(StatusKunjungan.Tersimpan));
-        int bermasalah = semuaKunjungan.Count - tersimpan;
-        BerhasilTersimpan = tersimpan.ToString();
-        PerluTindakLanjut = bermasalah.ToString();
+        _semua.Clear();
+        if (hasilLaporan.Data is not null)
+        {
+            _semua.AddRange(hasilLaporan.Data.Items);
+        }
 
-        await IsiTabelAsync(semuaKunjungan);
+        var daftarSales = hasilSales.Data ?? new List<SalesAdminDto>();
+        int hadir = _semua.Select(kunjungan => kunjungan.IdSales).Distinct().Count();
+
+        SalesHadir = $"{hadir} / {daftarSales.Count}";
+        TotalKunjungan = _semua.Count.ToString();
+        BerhasilTersimpan = _semua.Count(k => k.StatusVerifikasi == "Valid").ToString();
+        PerluTindakLanjut = _semua.Count(k => k.StatusVerifikasi != "Valid").ToString();
+
+        TerapkanFilter();
     }
 
-    partial void OnFilterStatusChanged(string value) => _ = MuatAsync();
+    partial void OnFilterStatusChanged(string value) => TerapkanFilter();
 
-    private async Task IsiTabelAsync(List<AbsensiKunjungan> semua)
+    private void TerapkanFilter()
     {
         var hasil = FilterStatus switch
         {
-            "Tersimpan" => semua.Where(k => k.Status == nameof(StatusKunjungan.Tersimpan)).ToList(),
-            "Gagal validasi" => semua.Where(k => k.Status == nameof(StatusKunjungan.GagalValidasi)).ToList(),
-            "Draf" => semua.Where(k => k.Status == nameof(StatusKunjungan.Draf)).ToList(),
-            _ => semua
+            "Valid" => _semua.Where(k => k.StatusVerifikasi == "Valid"),
+            "Pending" => _semua.Where(k => k.StatusVerifikasi == "Pending"),
+            "Invalid" => _semua.Where(k => k.StatusVerifikasi == "Invalid"),
+            _ => _semua
         };
 
         DaftarKunjungan.Clear();
-        foreach (var k in hasil.OrderByDescending(k => k.WaktuCatat))
+        foreach (var kunjungan in hasil
+                     .OrderByDescending(k => ApiMapper.Waktu(k.WaktuCheckin)))
         {
-            var sales = await _salesRepo.GetByIdAsync(k.SalesId);
-            var toko = await _tokoRepo.GetByIdAsync(k.TokoId);
-
             DaftarKunjungan.Add(new KunjunganTabelItem
             {
-                Id = k.Id,
-                NamaSales = sales?.Nama ?? "-",
-                Nip = sales?.Nip ?? "-",
-                NamaToko = toko?.NamaToko ?? "-",
-                KodeToko = toko?.KodeToko ?? "-",
-                WaktuAwal = k.WaktuAbsensiAwal,
-                WaktuCatat = k.WaktuCatat,
-                Lokasi = k.Status == nameof(StatusKunjungan.Draf)
-                    ? "Belum dicatat"
-                    : k.Status == nameof(StatusKunjungan.GagalValidasi)
-                        ? "Di luar radius"
-                        : $"Sesuai - +/-{k.JarakMeter:F0} m",
-                Status = k.StatusLabel,
-                AdaWajah = k.SkorWajah > 0,
-                AdaFoto = k.Status != nameof(StatusKunjungan.Draf)
+                Id = kunjungan.IdKunjungan,
+                NamaSales = string.IsNullOrWhiteSpace(kunjungan.NamaSales)
+                    ? "-"
+                    : kunjungan.NamaSales!,
+                Nip = string.IsNullOrWhiteSpace(kunjungan.NomorSales)
+                    ? "-"
+                    : kunjungan.NomorSales!,
+                NamaToko = string.IsNullOrWhiteSpace(kunjungan.NamaToko)
+                    ? "-"
+                    : kunjungan.NamaToko!,
+                KodeToko = string.IsNullOrWhiteSpace(kunjungan.KodeToko)
+                    ? $"TK-{kunjungan.IdToko}"
+                    : kunjungan.KodeToko!,
+                WaktuAwal = ApiMapper.Jam(kunjungan.WaktuCheckin),
+                WaktuCatat = ApiMapper.Jam(kunjungan.WaktuCheckout),
+                Lokasi = FormatLokasi(kunjungan),
+                Status = ApiMapper.StatusKunjungan(kunjungan.StatusVerifikasi),
+                AdaWajah = (kunjungan.SkorWajah ?? 0) > 0,
+                AdaFoto = !string.IsNullOrWhiteSpace(kunjungan.FotoBukti)
             });
         }
 
         JumlahHasil = $"{DaftarKunjungan.Count} hasil - seluruh waktu dalam WIB";
     }
 
+    private static string FormatLokasi(KunjunganDto kunjungan)
+    {
+        if (kunjungan.StatusVerifikasi == "Invalid")
+        {
+            return "Di luar radius";
+        }
+
+        if (kunjungan.JarakMeter.HasValue)
+        {
+            return $"Sesuai - +/-{kunjungan.JarakMeter.Value:F0} m";
+        }
+
+        if (kunjungan.LatitudeCheckin.HasValue && kunjungan.LongitudeCheckin.HasValue)
+        {
+            return $"{kunjungan.LatitudeCheckin.Value:F4}, {kunjungan.LongitudeCheckin.Value:F4}";
+        }
+
+        return "-";
+    }
+
     [RelayCommand]
     private void BukaDetail(KunjunganTabelItem? item)
     {
         if (item is null)
+        {
             return;
+        }
 
         _nav.NavigateTo(typeof(Views.DetailKunjunganPage), item.Id);
     }
 
     [RelayCommand]
-    private async Task EksporAsync() =>
-        await Shell.Current.DisplayAlert("Ekspor laporan",
-            "Laporan diekspor ke Excel/PDF (demo).", "OK");
+    private async Task EksporAsync()
+    {
+        try
+        {
+            var filePath = Path.Combine(
+                FileSystem.Current.CacheDirectory,
+                $"laporan-kunjungan-{DateTime.Now:yyyyMMdd-HHmmss}.csv");
+
+            var baris = new List<string>
+            {
+                "Sales,NIP,Toko,Kode toko,Waktu check-in,Waktu check-out,Lokasi,Status"
+            };
+
+            foreach (var item in DaftarKunjungan)
+            {
+                baris.Add(string.Join(',', new[]
+                {
+                    item.NamaSales,
+                    item.Nip,
+                    item.NamaToko,
+                    item.KodeToko,
+                    item.WaktuAwal,
+                    item.WaktuCatat,
+                    item.Lokasi,
+                    item.Status
+                }.Select(KutipCsv)));
+            }
+
+            await File.WriteAllTextAsync(
+                filePath,
+                string.Join(Environment.NewLine, baris),
+                new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+
+            await Launcher.Default.OpenAsync(new OpenFileRequest
+            {
+                File = new ReadOnlyFile(filePath),
+                Title = "Laporan kunjungan"
+            });
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert(
+                "Ekspor gagal",
+                "File laporan tidak dapat dibuat atau dibuka.\n\n" + ex.Message,
+                "OK");
+        }
+    }
+
+    private static string KutipCsv(string nilai) =>
+        '"' + (nilai ?? string.Empty).Replace("\"", "\"\"") + '"';
 }

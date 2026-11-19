@@ -1,72 +1,133 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
+using AbsensiSales.Core.Api;
+using AbsensiSales.HR.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using AbsensiSales.HR.Services;
 using Microsoft.Maui.ApplicationModel;
 
 namespace AbsensiSales.HR.ViewModels;
 
 public partial class PayrollViewModel : ObservableObject
 {
-    private const decimal GajiPokok = 2_500_000m;
-    private const decimal BonusPerKunjungan = 15_000m;
-    private const int HariKerjaBulanan = 22;
-    private const int TargetKunjunganBulanan = 176;
-
+    private readonly ApiService _api;
     private readonly PdfService _pdfService;
 
-    public PayrollViewModel(PdfService pdfService)
+    public PayrollViewModel(ApiService api, PdfService pdfService)
     {
+        _api = api;
         _pdfService = pdfService;
     }
 
     public ObservableCollection<PayrollItem> DaftarGaji { get; } = new();
 
     [ObservableProperty]
-    private string _periode = "November 2026";
+    private string _periode = string.Empty;
 
     [ObservableProperty]
-    private string _totalHariKerja = "22 hari";
+    private string _totalHariKerja = "-";
 
     [ObservableProperty]
-    private string _totalKunjunganTarget = "176 kunjungan";
+    private string _totalKunjunganTarget = "-";
 
     [ObservableProperty]
-    private string _rekapSiap = "4 kunjungan tercatat - siap ditinjau";
+    private string _rekapSiap = "Memuat data...";
 
-    public Task MuatAsync()
+    [ObservableProperty]
+    private string _pesanError = string.Empty;
+
+    [ObservableProperty]
+    private bool _adaError;
+
+    private string PeriodeApi { get; set; } = DateTime.Now.ToString("yyyy-MM");
+
+    public async Task MuatAsync()
     {
+        var sekarang = DateTime.Now;
+        PeriodeApi = sekarang.ToString("yyyy-MM");
+        Periode = sekarang.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("id-ID"));
+
+        var hasil = await _api.GetPenggajianAsync(PeriodeApi);
+        if (!hasil.Sukses || hasil.Data is null)
+        {
+            DaftarGaji.Clear();
+            PesanError = hasil.Pesan;
+            AdaError = true;
+            RekapSiap = "Rekap gaji belum dapat dimuat.";
+            TotalHariKerja = "-";
+            TotalKunjunganTarget = "-";
+            return;
+        }
+
+        var data = hasil.Data;
+        PesanError = string.Empty;
+        AdaError = false;
+
+        TotalHariKerja = $"{data.HariKerjaBulanan} hari";
+        TotalKunjunganTarget = $"{data.TargetKunjungan} kunjungan";
+
         DaftarGaji.Clear();
-
-        foreach (var item in BuatDataMock())
-            DaftarGaji.Add(item);
-
-        Periode = "November 2026";
-        TotalHariKerja = $"{HariKerjaBulanan} hari";
-        TotalKunjunganTarget = $"{TargetKunjunganBulanan} kunjungan";
+        foreach (var item in data.Items)
+        {
+            DaftarGaji.Add(new PayrollItem
+            {
+                NamaSales = item.NamaSales,
+                KodeSales = item.NomorSales,
+                HariKerja = item.HariKerja,
+                KunjunganToko = item.KunjunganValid,
+                JumlahIzin = item.JumlahIzin,
+                StatusTarget = item.StatusTarget,
+                TotalGaji = item.TotalGaji,
+                GajiPokok = item.GajiPokok,
+                InsentifPerKunjungan = item.InsentifPerKunjungan,
+                TotalInsentif = item.TotalInsentif,
+                TotalPotongan = item.TotalPotongan
+            });
+        }
 
         var totalKunjungan = DaftarGaji.Sum(item => item.KunjunganToko);
-        RekapSiap = $"{totalKunjungan} kunjungan tercatat - siap ditinjau";
-
-        return Task.CompletedTask;
+        RekapSiap = $"{totalKunjungan} kunjungan valid tercatat - siap ditinjau";
     }
 
     [RelayCommand]
     private async Task HitungUlangAsync()
     {
         await MuatAsync();
+
         await Shell.Current.DisplayAlert(
-            "Perhitungan selesai",
-            "Rekapitulasi gaji berhasil dihitung ulang dari data absensi & izin.",
+            AdaError ? "Gagal menghitung" : "Perhitungan selesai",
+            AdaError
+                ? PesanError
+                : "Rekapitulasi gaji dihitung dari kunjungan valid dan izin yang disetujui.",
             "OK");
     }
 
     [RelayCommand]
-    private async Task SetujuiRekapAsync() =>
+    private async Task SetujuiRekapAsync()
+    {
+        if (DaftarGaji.Count == 0)
+        {
+            await Shell.Current.DisplayAlert(
+                "Belum ada data",
+                "Tidak ada sales yang dapat diproses pada periode ini.",
+                "OK");
+            return;
+        }
+
+        var hasil = await _api.ProsesPenggajianAsync(PeriodeApi);
+        if (!hasil.Sukses)
+        {
+            await Shell.Current.DisplayAlert("Gagal menyimpan", hasil.Pesan, "OK");
+            return;
+        }
+
+        await MuatAsync();
+
         await Shell.Current.DisplayAlert(
-            "Rekap disetujui",
-            "Rekapitulasi gaji disetujui dan siap dicetak.",
+            "Rekap disimpan",
+            $"Rekapitulasi gaji periode {Periode} berhasil disimpan ke database.",
             "OK");
+    }
 
     [RelayCommand]
     private async Task CetakSlipAsync(PayrollItem? item)
@@ -90,37 +151,5 @@ public partial class PayrollViewModel : ObservableObject
                 $"File PDF tidak dapat dibuat atau dibuka.\n\n{ex.Message}",
                 "OK");
         }
-    }
-
-    private static IEnumerable<PayrollItem> BuatDataMock() => new List<PayrollItem>
-    {
-        BuatItem("Andi Pratama", "SLS-014", kunjungan: 2, izin: 2),
-        BuatItem("Ayu Ningsih", "SLS-022", kunjungan: 1, izin: 1),
-        BuatItem("Budi Raharjo", "SLS-011", kunjungan: 1, izin: 1),
-        BuatItem("Citra Dewi", "SLS-015", kunjungan: 0, izin: 0)
-    };
-
-    private static PayrollItem BuatItem(
-        string nama,
-        string kode,
-        int kunjungan,
-        int izin)
-    {
-        decimal bonus = kunjungan * BonusPerKunjungan;
-        decimal potonganIzin = izin * (GajiPokok / HariKerjaBulanan);
-        decimal totalGaji = Math.Max(0, GajiPokok + bonus - potonganIzin);
-
-        return new PayrollItem
-        {
-            NamaSales = nama,
-            KodeSales = kode,
-            HariKerja = HariKerjaBulanan - izin,
-            KunjunganToko = kunjungan,
-            JumlahIzin = izin,
-            StatusTarget = kunjungan >= TargetKunjunganBulanan
-                ? "Target tercapai"
-                : "Belum tercapai",
-            TotalGaji = totalGaji
-        };
     }
 }

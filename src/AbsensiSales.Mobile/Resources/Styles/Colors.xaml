@@ -3,17 +3,24 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Palet "Jejak Sales" versi MOBILE: dasar putih bersih + aksen kuning pastel.
-         Semua warna solid (tanpa gradient). Teks memakai PrimaryDark agar tetap
-         terbaca di atas putih. -->
-    <Color x:Key="Primary">#F3D152</Color>
+    <!-- Palet "Jejak Sales" versi MOBILE.
+         Background tetap putih. Container memakai warna solid tanpa outline:
+         kuning lembut, putih, dan biru tua. Semua warna solid (tanpa gradient). -->
+    <Color x:Key="Primary">#F7C948</Color>
     <Color x:Key="PrimaryBright">#FED766</Color>
-    <Color x:Key="PrimarySoft">#FEF08A</Color>
+    <Color x:Key="PrimarySoft">#FFF3C4</Color>
     <Color x:Key="PrimaryDark">#8A5A00</Color>
-    <Color x:Key="OnPrimary">#594100</Color>
+    <Color x:Key="OnPrimary">#3D2C00</Color>
+    <Color x:Key="AccentYellow">#F3BD60</Color>
 
-    <Color x:Key="Navy">#2B2319</Color>
+    <!-- Biru tua sebagai warna kontras utama -->
+    <Color x:Key="Navy">#10243D</Color>
+    <Color x:Key="NavyDeep">#0A1929</Color>
+    <Color x:Key="NavySoft">#E7EEF7</Color>
+    <Color x:Key="NavyMuted">#AFC0D6</Color>
     <Color x:Key="Yellow">#FED766</Color>
+    <Color x:Key="YellowSoft">#FFF3C4</Color>
+    <Color x:Key="YellowPale">#FFF9E6</Color>
     <Color x:Key="YellowDark">#E8C33F</Color>
     <Color x:Key="Peach">#FBA87E</Color>
     <Color x:Key="Coral">#F88D6A</Color>
@@ -21,22 +28,27 @@
     <Color x:Key="MintDark">#A3DB99</Color>
 
     <Color x:Key="Background">#FFFFFF</Color>
+    <Color x:Key="CardBackground">#FFFFFF</Color>
+    <Color x:Key="CardBackgroundDark">#10243D</Color>
     <Color x:Key="Surface">#FFFFFF</Color>
-    <Color x:Key="SurfaceAlt">#FFFDF7</Color>
-    <Color x:Key="Border">#EFE9DC</Color>
-    <Color x:Key="BorderSoft">#FFF3C9</Color>
+    <Color x:Key="SurfaceAlt">#FFF9E6</Color>
+    <Color x:Key="SurfaceBackground">#FFF3C4</Color>
+    <Color x:Key="Border">#FFF3C4</Color>
+    <Color x:Key="BorderColor">#F2E8CF</Color>
+    <Color x:Key="BorderSoft">#FFF3C4</Color>
 
-    <Color x:Key="TextPrimary">#2B2319</Color>
-    <Color x:Key="TextSecondary">#8C8275</Color>
-    <Color x:Key="TextOnNavy">#F3ECDD</Color>
+    <Color x:Key="TextPrimary">#0D1B2A</Color>
+    <Color x:Key="TextSecondary">#6F7D8F</Color>
+    <Color x:Key="SubtleGray">#9AA6B5</Color>
+    <Color x:Key="TextOnNavy">#FFFFFF</Color>
 
-    <Color x:Key="Success">#3F9160</Color>
-    <Color x:Key="SuccessBg">#E9F6E6</Color>
-    <Color x:Key="Warning">#B07C00</Color>
-    <Color x:Key="WarningBg">#FFF3C9</Color>
+    <Color x:Key="Success">#2F7D53</Color>
+    <Color x:Key="SuccessBg">#E4F4EA</Color>
+    <Color x:Key="Warning">#8A5A00</Color>
+    <Color x:Key="WarningBg">#FFF3C4</Color>
     <Color x:Key="Danger">#C6402F</Color>
     <Color x:Key="DangerBg">#FDECEA</Color>
-    <Color x:Key="InfoBg">#FFF7D6</Color>
+    <Color x:Key="InfoBg">#FFF3C4</Color>
 
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>

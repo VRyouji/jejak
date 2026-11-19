@@ -1,5 +1,4 @@
-using AbsensiSales.Core.Models;
-using AbsensiSales.Core.Repositories;
+using AbsensiSales.Core.Api;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AbsensiSales.HR.ViewModels;
@@ -7,18 +6,11 @@ namespace AbsensiSales.HR.ViewModels;
 [QueryProperty(nameof(KunjunganId), "id")]
 public partial class DetailKunjunganViewModel : ObservableObject
 {
-    private readonly KunjunganRepository _kunjunganRepo;
-    private readonly SalesRepository _salesRepo;
-    private readonly TokoRepository _tokoRepo;
+    private readonly ApiService _api;
 
-    public DetailKunjunganViewModel(
-        KunjunganRepository kunjunganRepo,
-        SalesRepository salesRepo,
-        TokoRepository tokoRepo)
+    public DetailKunjunganViewModel(ApiService api)
     {
-        _kunjunganRepo = kunjunganRepo;
-        _salesRepo = salesRepo;
-        _tokoRepo = tokoRepo;
+        _api = api;
     }
 
     [ObservableProperty]
@@ -60,28 +52,73 @@ public partial class DetailKunjunganViewModel : ObservableObject
     [ObservableProperty]
     private string _catatan = string.Empty;
 
+    [ObservableProperty]
+    private string _infoWajah = string.Empty;
+
+    [ObservableProperty]
+    private string _infoFoto = string.Empty;
+
+    [ObservableProperty]
+    private string _pesanError = string.Empty;
+
+    [ObservableProperty]
+    private bool _adaError;
+
     public async Task MuatAsync()
     {
-        var kunjungan = await _kunjunganRepo.GetByIdAsync(KunjunganId);
-        if (kunjungan is null)
+        var hasil = await _api.GetKunjunganDetailAsync(KunjunganId);
+        if (!hasil.Sukses || hasil.Data is null)
+        {
+            PesanError = hasil.Pesan;
+            AdaError = true;
             return;
+        }
 
-        var sales = await _salesRepo.GetByIdAsync(kunjungan.SalesId);
-        var toko = await _tokoRepo.GetByIdAsync(kunjungan.TokoId);
+        var kunjungan = hasil.Data;
+        PesanError = string.Empty;
+        AdaError = false;
 
-        Judul = $"Detail kunjungan - {toko?.NamaToko ?? "Toko"}";
-        NamaSales = sales?.Nama ?? "-";
-        InfoSales = sales is null ? "-" : $"{sales.Nip} - {sales.Wilayah}";
-        Inisial = sales?.Inisial ?? "?";
-        NamaToko = toko?.NamaToko ?? "-";
-        InfoToko = toko is null ? "-" : $"{toko.KodeToko} - {toko.Alamat}";
-        Status = kunjungan.StatusLabel;
-        WaktuAwal = kunjungan.WaktuAbsensiAwal;
-        WaktuCatat = kunjungan.WaktuCatat;
-        Lokasi = $"{kunjungan.Latitude:F4}, {kunjungan.Longitude:F4} - +/-{kunjungan.JarakMeter:F0} m";
+        var namaToko = string.IsNullOrWhiteSpace(kunjungan.NamaToko)
+            ? "Toko"
+            : kunjungan.NamaToko!;
+        var kodeToko = string.IsNullOrWhiteSpace(kunjungan.KodeToko)
+            ? $"TK-{kunjungan.IdToko}"
+            : kunjungan.KodeToko!;
+
+        Judul = $"Detail kunjungan - {namaToko}";
+        NamaSales = string.IsNullOrWhiteSpace(kunjungan.NamaSales)
+            ? "-"
+            : kunjungan.NamaSales!;
+        InfoSales = string.IsNullOrWhiteSpace(kunjungan.WilayahSales)
+            ? ApiMapper.AtauDash(kunjungan.NomorSales)
+            : $"{ApiMapper.AtauDash(kunjungan.NomorSales)} - {kunjungan.WilayahSales}";
+        Inisial = ApiMapper.Inisial(kunjungan.NamaSales);
+        NamaToko = namaToko;
+        InfoToko = $"{kodeToko} - {ApiMapper.AtauDash(kunjungan.AlamatToko)}";
+        Status = ApiMapper.StatusKunjungan(kunjungan.StatusVerifikasi);
+        WaktuAwal = ApiMapper.Jam(kunjungan.WaktuCheckin);
+        WaktuCatat = ApiMapper.Jam(kunjungan.WaktuCheckout);
+
+        var koordinat = kunjungan.LatitudeCheckin.HasValue && kunjungan.LongitudeCheckin.HasValue
+            ? $"{kunjungan.LatitudeCheckin.Value:F4}, {kunjungan.LongitudeCheckin.Value:F4}"
+            : "-";
+
+        Lokasi = kunjungan.JarakMeter.HasValue
+            ? $"{koordinat} - +/-{kunjungan.JarakMeter.Value:F0} m"
+            : koordinat;
+
         Tujuan = string.IsNullOrWhiteSpace(kunjungan.TujuanKunjungan)
-            ? "-" : kunjungan.TujuanKunjungan;
+            ? "-"
+            : kunjungan.TujuanKunjungan!;
         Catatan = string.IsNullOrWhiteSpace(kunjungan.Catatan)
-            ? "Tidak ada catatan tambahan." : kunjungan.Catatan;
+            ? "Tidak ada catatan tambahan."
+            : kunjungan.Catatan!;
+
+        InfoWajah = (kunjungan.SkorWajah ?? 0) > 0
+            ? $"Skor wajah {kunjungan.SkorWajah!.Value:F2}"
+            : "Tidak ada data skor wajah.";
+        InfoFoto = string.IsNullOrWhiteSpace(kunjungan.FotoBukti)
+            ? "Tidak ada foto bukti."
+            : "Foto bukti tersedia.";
     }
 }

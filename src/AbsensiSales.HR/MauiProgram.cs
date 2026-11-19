@@ -1,5 +1,4 @@
-﻿using AbsensiSales.Core.Data;
-using AbsensiSales.Core.Repositories;
+﻿using AbsensiSales.Core.Api;
 using AbsensiSales.Core.Services;
 using AbsensiSales.HR.ViewModels;
 using AbsensiSales.HR.Views;
@@ -25,13 +24,8 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // Data & sesi - folder database sama dengan aplikasi Mobile
-        // sehingga kedua aplikasi berbagi data SQLite yang sama.
-        builder.Services.AddSingleton<AppDatabase>();
-        builder.Services.AddSingleton<SalesRepository>();
-        builder.Services.AddSingleton<TokoRepository>();
-        builder.Services.AddSingleton<KunjunganRepository>();
-        builder.Services.AddSingleton<PermohonanRepository>();
+        // Aplikasi HR hanya memakai backend API, tanpa database lokal.
+        builder.Services.AddSingleton<ApiService>();
         builder.Services.AddSingleton<SessionService>();
         builder.Services.AddSingleton<AbsensiSales.HR.Services.HrNavigationService>();
         builder.Services.AddSingleton<AbsensiSales.HR.Services.PdfService>();
@@ -41,7 +35,6 @@ public static class MauiProgram
 
         // ViewModels
         builder.Services.AddTransient<HrLoginViewModel>();
-        builder.Services.AddTransient<HrRegisterViewModel>();
         builder.Services.AddTransient<MonitoringViewModel>();
         builder.Services.AddTransient<LaporanHrViewModel>();
         builder.Services.AddTransient<DetailKunjunganViewModel>();
@@ -53,7 +46,6 @@ public static class MauiProgram
 
         // Views
         builder.Services.AddTransient<HrLoginPage>();
-        builder.Services.AddTransient<HrRegisterPage>();
         builder.Services.AddTransient<WorkspacePage>();
         builder.Services.AddTransient<MonitoringPage>();
         builder.Services.AddTransient<LaporanHrPage>();

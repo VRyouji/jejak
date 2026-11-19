@@ -13,17 +13,21 @@ public partial class VerifikasiDataViewModel : ObservableObject
     private readonly KunjunganRepository _kunjunganRepo;
     private readonly TokoRepository _tokoRepo;
     private readonly AbsensiFlowState _flow;
+    private readonly NotificationService _notif;
+    private bool _sudahDisimpan;
 
     public VerifikasiDataViewModel(
         SessionService session,
         KunjunganRepository kunjunganRepo,
         TokoRepository tokoRepo,
-        AbsensiFlowState flow)
+        AbsensiFlowState flow,
+        NotificationService notif)
     {
         _session = session;
         _kunjunganRepo = kunjunganRepo;
         _tokoRepo = tokoRepo;
         _flow = flow;
+        _notif = notif;
     }
 
     [ObservableProperty]
@@ -64,11 +68,15 @@ public partial class VerifikasiDataViewModel : ObservableObject
 
     public async void OnAppearing()
     {
+        if (_sudahDisimpan)
+            return;
+
         var sales = _session.SalesAktif;
         if (sales is null || _flow.TokoTerpilih is null)
         {
             ValidasiGagal = true;
             PesanGagal = "Data kunjungan belum lengkap. Kembali ke Pengisian Data Toko.";
+            await _notif.ShowErrorAsync(PesanGagal);
             return;
         }
 
@@ -88,6 +96,7 @@ public partial class VerifikasiDataViewModel : ObservableObject
             if (!fotoOk) masalah.Add("foto bukti belum ada");
             PesanGagal = $"Data belum dapat disimpan ({string.Join(", ", masalah)}). "
                 + "Kembali ke Pengisian Data Toko, perbaiki data, lalu ulangi verifikasi.";
+            await _notif.ShowErrorAsync($"Data belum lengkap: {string.Join(", ", masalah)}.");
             return;
         }
 
@@ -108,7 +117,9 @@ public partial class VerifikasiDataViewModel : ObservableObject
         };
 
         _flow.KunjunganId = await _kunjunganRepo.SaveAsync(kunjungan);
+        _sudahDisimpan = true;
 
+        ValidasiGagal = false;
         Tersimpan = true;
         NomorKunjungan = $"KJG-{DateTime.Now:ddMMyy}-{sales.Nip.Split('-').Last()}";
         WaktuKunjungan = $"{_flow.Tanggal} - {kunjungan.WaktuCatat} WIB";
@@ -119,6 +130,8 @@ public partial class VerifikasiDataViewModel : ObservableObject
         InfoGps = $"GPS sesuai - Jarak {_flow.JarakMeter:F0} m\n{_flow.Latitude:F4}, {_flow.Longitude:F4} - +/-8 m";
         InfoWaktu = $"Absensi pertama {_flow.WaktuAbsensiAwal} WIB";
         InfoWajah = $"Wajah cocok - {_flow.WaktuVerifikasiWajah}";
+
+        await _notif.ShowSuccessAsync("Kunjungan berhasil disimpan.");
     }
 
     [RelayCommand]

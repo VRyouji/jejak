@@ -1,41 +1,71 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="AbsensiSales.Mobile.Views.StatusPermohonanPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:AbsensiSales.Mobile.Controls"
     xmlns:vm="clr-namespace:AbsensiSales.Mobile.ViewModels"
     x:DataType="vm:StatusPermohonanViewModel"
     Title="Status Permohonan"
-    Shell.NavBarIsVisible="False">
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20,16,20,24" Spacing="0">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" />
+    </Shell.BackButtonBehavior>
 
-            <Label Text="Status permohonan" Style="{StaticResource TitleLabel}" Margin="0,0,0,4" />
-            <Label Text="{Binding InfoSales}" Style="{StaticResource SubtitleLabel}" Margin="0,0,0,14" />
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="20,20,20,24" Spacing="0">
 
-            <Label Text="Belum ada permohonan." Style="{StaticResource SubtitleLabel}" IsVisible="{Binding Kosong}" Margin="0,0,0,10" />
+                <controls:BackButton Margin="0,0,0,12" />
 
-            <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding DaftarPermohonan}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="vm:PermohonanItemViewModel">
-                        <Border Style="{StaticResource CardBorder}">
-                            <VerticalStackLayout Spacing="6">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0" Text="{Binding Jenis}" FontFamily="OpenSansSemibold" FontSize="15" />
-                                    <Label Grid.Column="1" Text="{Binding Status}" Style="{StaticResource BadgeWarning}" />
-                                </Grid>
-                                <Label Text="{Binding Periode}" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                                <Label Text="{Binding Alasan}" FontSize="13" />
-                                <Label Text="{Binding Diajukan, StringFormat='Diajukan {0}'}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
-                            </VerticalStackLayout>
-                        </Border>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
+                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+                    <Label Grid.Column="0" Text="Status permohonan" Style="{StaticResource TitleLabel}" />
+                    <Label Grid.Column="1" Text="RIWAYAT" Style="{StaticResource BadgeNavy}" VerticalOptions="Center" />
+                </Grid>
+                <Label Text="{Binding InfoSales}" Style="{StaticResource SubtitleLabel}" Margin="0,0,0,16" />
+
+                <controls:SolidCard Tone="Yellow" Padding="14" IsVisible="{Binding Kosong}" Margin="0,0,0,12">
+                    <Label Text="Belum ada permohonan. Ajukan izin atau cuti lewat tombol di bawah." TextColor="{StaticResource TextSecondary}" FontSize="12" />
+                </controls:SolidCard>
+
+                <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding DaftarPermohonan}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:PermohonanItemViewModel">
+                            <controls:SolidCard Tone="White">
+                                <VerticalStackLayout Spacing="6">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding Jenis}" FontFamily="OpenSansSemibold" FontSize="15" />
+                                        <Label Grid.Column="1" Text="{Binding Status}" Style="{StaticResource BadgeWarning}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Disetujui}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource Success}" />
+                                                    <Setter Property="BackgroundColor" Value="{StaticResource SuccessBg}" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Ditolak}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource Danger}" />
+                                                    <Setter Property="BackgroundColor" Value="{StaticResource DangerBg}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Grid>
+                                    <Label Text="{Binding Periode}" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                                    <Label Text="{Binding Alasan}" FontSize="13" />
+                                    <Label Text="{Binding Diajukan, StringFormat='Diajukan {0}'}" FontSize="10" TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                            </controls:SolidCard>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Button Text="+ Ajukan permohonan baru" Style="{StaticResource SecondaryButton}" Command="{Binding AjukanBaruCommand}" Margin="0,16,0,0" />
+
             </VerticalStackLayout>
+        </ScrollView>
 
-            <Button Text="+ Ajukan permohonan baru" Style="{StaticResource SecondaryButton}" Command="{Binding AjukanBaruCommand}" Margin="0,16,0,0" />
-
-        </VerticalStackLayout>
-    </ScrollView>
+        <controls:NotificationHost />
+    </Grid>
 </ContentPage>
+
+

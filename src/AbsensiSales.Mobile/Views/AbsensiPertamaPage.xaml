@@ -3,115 +3,175 @@
     x:Class="AbsensiSales.Mobile.Views.AbsensiPertamaPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:AbsensiSales.Mobile.Controls"
     xmlns:vm="clr-namespace:AbsensiSales.Mobile.ViewModels"
     x:DataType="vm:AbsensiPertamaViewModel"
-    Title="Absensi">
+    Title="Absensi"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20,16,20,24" Spacing="0">
+    <Grid RowDefinitions="*,Auto">
 
-            <!-- Header -->
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" Margin="0,0,0,16">
-                <Border Grid.Column="0" Style="{StaticResource CardBorder}" Padding="8" StrokeShape="RoundRectangle 8" WidthRequest="34" HeightRequest="34">
-                    <Label Text="JS" TextColor="{StaticResource PrimaryDark}" FontSize="15" HorizontalOptions="Center" VerticalOptions="Center" />
-                </Border>
-                <Label Grid.Column="1" Text="Jejak Sales" FontSize="17" FontFamily="OpenSansSemibold" VerticalOptions="Center" />
-                <Label Grid.Column="2" Text="DATA DEMO" Style="{StaticResource BadgeInfo}" VerticalOptions="Center" />
-            </Grid>
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="20,20,20,20" Spacing="0">
 
-            <Label Text="Absensi pertama" Style="{StaticResource TitleLabel}" Margin="0,0,0,4" />
-            <Label Text="{Binding TanggalManusia, StringFormat='{0} - Tahap 1 dari 5'}" Style="{StaticResource SubtitleLabel}" Margin="0,0,0,12" />
+                <controls:BackButton FallbackRoute="//login" Margin="0,0,0,12" />
 
-            <!-- Progress target harian 8 toko -->
-            <Grid ColumnDefinitions="*" Margin="0,0,0,16">
-                <Border BackgroundColor="{StaticResource Border}" StrokeThickness="0" StrokeShape="RoundRectangle 4" HeightRequest="6">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="{StaticResource Primary}" Offset="{Binding Progress}" />
-                            <GradientStop Color="Transparent" Offset="{Binding Progress}" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                </Border>
-            </Grid>
-            <Label Text="{Binding LabelProgress}" Style="{StaticResource SubtitleLabel}" Margin="0,-8,0,16" />
+                <!-- Header -->
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Margin="0,0,0,18">
+                    <controls:SolidCard
+                        Grid.Column="0"
+                        Tone="Navy"
+                        Padding="0"
+                        WidthRequest="40"
+                        HeightRequest="40"
+                        StrokeShape="RoundRectangle 13">
+                        <Label
+                            Text="JS"
+                            TextColor="{StaticResource White}"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="14"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </controls:SolidCard>
 
-            <!-- Identitas sales -->
-            <Border Style="{StaticResource CardBorder}" Padding="14" Margin="0,0,0,12">
-                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                    <Border Grid.Column="0" BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 20" WidthRequest="36" HeightRequest="36">
-                        <Label Text="AP" TextColor="{StaticResource PrimaryDark}" FontFamily="OpenSansSemibold" FontSize="12" HorizontalOptions="Center" VerticalOptions="Center" />
-                    </Border>
-                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                        <Label Text="{Binding NamaSales}" FontFamily="OpenSansSemibold" FontSize="15" />
-                        <Label Text="{Binding InfoSales}" Style="{StaticResource SubtitleLabel}" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                        <Label Text="Jejak Sales" FontSize="16" FontFamily="OpenSansSemibold" />
+                        <Label Text="Absensi kunjungan harian" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
-                    <Label Grid.Column="2" Text="{Binding StatusAbsensi}" Style="{StaticResource BadgeWarning}" VerticalOptions="Center" />
+
+                    <controls:SolidCard
+                        Grid.Column="2"
+                        Tone="Yellow"
+                        Padding="10,4"
+                        StrokeShape="RoundRectangle 20"
+                        VerticalOptions="Center">
+                        <Label Text="DEMO" TextColor="{StaticResource Navy}" FontSize="10" FontFamily="OpenSansSemibold" />
+                    </controls:SolidCard>
                 </Grid>
-            </Border>
 
-            <!-- Waktu saat ini -->
-            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
-                <VerticalStackLayout Spacing="4">
-                    <Label Text="WAKTU SAAT INI - WIB" FontSize="11" TextColor="{StaticResource TextSecondary}" FontFamily="OpenSansSemibold" />
-                    <Label Text="{Binding WaktuSekarang}" FontSize="34" FontFamily="OpenSansSemibold" TextColor="{StaticResource Navy}" />
-                    <Label Text="Waktu dicatat otomatis saat absensi." Style="{StaticResource SubtitleLabel}" />
-                </VerticalStackLayout>
-            </Border>
+                <Label Text="Absensi pertama" Style="{StaticResource TitleLabel}" Margin="0,0,0,4" />
+                <Label Text="{Binding TanggalManusia}" Style="{StaticResource SubtitleLabel}" Margin="0,0,0,14" />
 
-            <!-- Lokasi -->
-            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
-                <VerticalStackLayout Spacing="10">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Grid.Column="0" Text="Lokasi Anda" Style="{StaticResource SectionTitle}" />
-                        <Label Grid.Column="1" Text="GPS siap" Style="{StaticResource BadgeSuccess}" />
+                <!-- Progress target harian 8 toko -->
+                <ProgressBar
+                    Progress="{Binding Progress}"
+                    ProgressColor="{StaticResource Navy}"
+                    BackgroundColor="{StaticResource YellowSoft}"
+                    HeightRequest="8"
+                    Margin="0,0,0,6" />
+                <Label Text="{Binding LabelProgress}" Style="{StaticResource SubtitleLabel}" Margin="0,0,0,16" />
+
+                <!-- Identitas sales -->
+                <controls:SolidCard Tone="White" Padding="14" Margin="0,0,0,12">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <controls:SolidCard
+                            Grid.Column="0"
+                            Tone="Yellow"
+                            Padding="0"
+                            WidthRequest="38"
+                            HeightRequest="38"
+                            StrokeShape="RoundRectangle 19">
+                            <Label
+                                Text="AP"
+                                TextColor="{StaticResource Navy}"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="12"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center" />
+                        </controls:SolidCard>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="{Binding NamaSales}" FontFamily="OpenSansSemibold" FontSize="15" />
+                            <Label Text="{Binding InfoSales}" Style="{StaticResource SubtitleLabel}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="{Binding StatusAbsensi}" Style="{StaticResource BadgeWarning}" VerticalOptions="Center" />
                     </Grid>
+                </controls:SolidCard>
 
-                    <!-- Peta placeholder -->
-                    <Border BackgroundColor="{StaticResource Background}" StrokeThickness="0" StrokeShape="RoundRectangle 12" HeightRequest="150" Padding="0">
-                        <Grid>
-                            <Label Text="Jl. Raya Darmo" TextColor="{StaticResource TextSecondary}" FontSize="11" Margin="12,10" />
-                            <Label Text="TEGALSARI" TextColor="{StaticResource TextSecondary}" FontSize="10" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,16,16" />
-                            <Label Text="{Binding LabelTokoContoh}" BackgroundColor="{StaticResource Navy}" TextColor="White" FontSize="11" Padding="8,4" HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,8" />
-                            <Label Text="+" TextColor="{StaticResource PrimaryDark}" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+                <!-- Waktu saat ini -->
+                <controls:SolidCard Tone="Navy" Margin="0,0,0,12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="WAKTU SAAT INI - WIB" FontSize="10" TextColor="{StaticResource White}" FontFamily="OpenSansSemibold" />
+                        <Label Text="{Binding WaktuSekarang}" FontSize="36" FontFamily="OpenSansSemibold" TextColor="{StaticResource White}" />
+                        <Label Text="Waktu dicatat otomatis saat absensi." FontSize="12" TextColor="{StaticResource White}" />
+                    </VerticalStackLayout>
+                </controls:SolidCard>
+
+                <!-- Lokasi -->
+                <controls:SolidCard Tone="White" Margin="0,0,0,12">
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Lokasi Anda" Style="{StaticResource SectionTitle}" />
+                            <Label Grid.Column="1" Text="GPS siap" Style="{StaticResource BadgeSuccess}" />
                         </Grid>
-                    </Border>
 
-                    <Label Text="{Binding AlamatTokoContoh}" FontFamily="OpenSansSemibold" FontSize="14" />
-                    <Label Text="{Binding KoordinatContoh}" Style="{StaticResource SubtitleLabel}" />
-                </VerticalStackLayout>
-            </Border>
+                        <!-- Peta placeholder solid biru tua -->
+                        <controls:SolidCard Tone="Navy" Padding="0" HeightRequest="150" StrokeShape="RoundRectangle 14">
+                            <Grid>
+                                <Label Text="Jl. Raya Darmo" TextColor="{StaticResource White}" FontSize="11" Margin="12,10" />
+                                <Label Text="TEGALSARI" TextColor="{StaticResource White}" FontSize="10" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,16,16" />
+                                <Label Text="+" TextColor="{StaticResource White}" FontSize="28" HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <!-- Kesiapan perangkat -->
-            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
-                <VerticalStackLayout Spacing="12">
-                    <Label Text="Kesiapan perangkat" Style="{StaticResource SectionTitle}" />
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                        <Label Grid.Column="0" Text="GPS" FontSize="16" />
-                        <VerticalStackLayout Grid.Column="1" Spacing="1">
-                            <Label Text="Izin lokasi" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                            <Label Text="Diizinkan - Lokasi presisi aktif" FontSize="13" FontFamily="OpenSansSemibold" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="OK" TextColor="{StaticResource Success}" FontSize="16" VerticalOptions="Center" />
-                    </Grid>
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                        <Label Grid.Column="0" Text="FOTO" FontSize="16" />
-                        <VerticalStackLayout Grid.Column="1" Spacing="1">
-                            <Label Text="Izin kamera" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                            <Label Text="Diizinkan - Kamera siap" FontSize="13" FontFamily="OpenSansSemibold" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="OK" TextColor="{StaticResource Success}" FontSize="16" VerticalOptions="Center" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
+                                <controls:SolidCard
+                                    Tone="Yellow"
+                                    Padding="9,5"
+                                    StrokeShape="RoundRectangle 10"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="End"
+                                    Margin="0,0,0,10">
+                                    <Label Text="{Binding LabelTokoContoh}" TextColor="{StaticResource Navy}" FontSize="10" FontFamily="OpenSansSemibold" />
+                                </controls:SolidCard>
+                            </Grid>
+                        </controls:SolidCard>
 
-            <Button
-                Text="Catat absensi pertama >"
-                Style="{StaticResource PrimaryButton}"
-                Command="{Binding CatatAbsensiCommand}"
-                AutomationId="ButtonAbsensiPertama" />
+                        <Label Text="{Binding AlamatTokoContoh}" FontFamily="OpenSansSemibold" FontSize="14" />
+                        <Label Text="{Binding KoordinatContoh}" Style="{StaticResource SubtitleLabel}" />
+                    </VerticalStackLayout>
+                </controls:SolidCard>
 
-            <Label Text="Demo - GPS disimulasikan di sekitar lokasi toko" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" FontSize="12" Margin="0,10,0,0" />
+                <!-- Kesiapan perangkat -->
+                <controls:SolidCard Tone="White" Margin="0,0,0,16">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Kesiapan perangkat" Style="{StaticResource SectionTitle}" />
 
-        </VerticalStackLayout>
-    </ScrollView>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <controls:SolidCard Grid.Column="0" Tone="Yellow" Padding="0" WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 12">
+                                <Label Text="GPS" FontSize="9" TextColor="{StaticResource Navy}" FontFamily="OpenSansSemibold" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </controls:SolidCard>
+                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                <Label Text="Izin lokasi" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                <Label Text="Diizinkan - Lokasi presisi aktif" FontSize="13" FontFamily="OpenSansSemibold" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="OK" TextColor="{StaticResource Success}" FontFamily="OpenSansSemibold" FontSize="13" VerticalOptions="Center" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <controls:SolidCard Grid.Column="0" Tone="Yellow" Padding="0" WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 12">
+                                <Label Text="CAM" FontSize="9" TextColor="{StaticResource Navy}" FontFamily="OpenSansSemibold" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </controls:SolidCard>
+                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                <Label Text="Izin kamera" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                <Label Text="Diizinkan - Kamera siap" FontSize="13" FontFamily="OpenSansSemibold" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="OK" TextColor="{StaticResource Success}" FontFamily="OpenSansSemibold" FontSize="13" VerticalOptions="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </controls:SolidCard>
+
+                <Button
+                    Text="Catat absensi pertama"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding CatatAbsensiCommand}"
+                    AutomationId="ButtonAbsensiPertama" />
+
+                <Label Text="Demo - GPS disimulasikan di sekitar lokasi toko" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" FontSize="11" Margin="0,10,0,0" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:BottomNavBar Grid.Row="1" ActiveTab="absensi" Margin="16,4,16,14" />
+
+        <controls:NotificationHost Grid.RowSpan="2" Margin="0,0,0,92" />
+
+    </Grid>
 </ContentPage>

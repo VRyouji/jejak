@@ -1,6 +1,7 @@
 using AbsensiSales.Core.Models;
 using AbsensiSales.Core.Repositories;
 using AbsensiSales.Core.Services;
+using AbsensiSales.Mobile.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -10,11 +11,16 @@ public partial class PengajuanIzinViewModel : ObservableObject
 {
     private readonly SessionService _session;
     private readonly PermohonanRepository _permohonanRepo;
+    private readonly NotificationService _notif;
 
-    public PengajuanIzinViewModel(SessionService session, PermohonanRepository permohonanRepo)
+    public PengajuanIzinViewModel(
+        SessionService session,
+        PermohonanRepository permohonanRepo,
+        NotificationService notif)
     {
         _session = session;
         _permohonanRepo = permohonanRepo;
+        _notif = notif;
     }
 
     public string[] JenisPermohonan { get; } = { "Cuti", "Izin Sakit" };
@@ -34,9 +40,6 @@ public partial class PengajuanIzinViewModel : ObservableObject
     [ObservableProperty]
     private string _lampiran = string.Empty;
 
-    [ObservableProperty]
-    private string _pesanError = string.Empty;
-
     [RelayCommand]
     private void PilihCuti() => Jenis = "Cuti";
 
@@ -52,13 +55,13 @@ public partial class PengajuanIzinViewModel : ObservableObject
 
         if (TanggalSelesai < TanggalMulai)
         {
-            PesanError = "Tanggal selesai tidak boleh sebelum tanggal mulai.";
+            await _notif.ShowErrorAsync("Tanggal selesai tidak boleh sebelum tanggal mulai.");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(Alasan))
         {
-            PesanError = "Alasan wajib diisi.";
+            await _notif.ShowErrorAsync("Alasan wajib diisi.");
             return;
         }
 
@@ -74,9 +77,8 @@ public partial class PengajuanIzinViewModel : ObservableObject
             Status = nameof(StatusPermohonan.Pending)
         });
 
-        await Shell.Current.DisplayAlert("Terkirim",
-            "Permohonan Anda sudah dikirim dan menunggu persetujuan HR.", "OK");
         await Shell.Current.GoToAsync("..");
+        await _notif.ShowSuccessAsync("Permohonan terkirim dan menunggu persetujuan HR.");
     }
 
     [RelayCommand]

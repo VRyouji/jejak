@@ -14,6 +14,11 @@
             <!-- Header -->
             <Label Text="Perhitungan gaji (payroll)" Style="{StaticResource PageTitle}" Margin="0,0,0,4" />
             <Label Text="Rekapitulasi gaji dihitung otomatis dari hari kerja, jumlah kunjungan toko, dan potongan izin/cuti." Style="{StaticResource PageSubtitle}" Margin="0,0,0,16" />
+            <Label Text="{Binding PesanError}"
+                   IsVisible="{Binding AdaError}"
+                   TextColor="{StaticResource Danger}"
+                   FontSize="12"
+                   Margin="0,0,0,8" />
 
             <!-- Kartu ringkasan -->
             <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,0,0,10">
@@ -35,7 +40,7 @@
                     <VerticalStackLayout Spacing="3">
                         <Label Text="Target kunjungan" FontSize="12" TextColor="{StaticResource TextSecondary}" />
                         <Label Text="{Binding TotalKunjunganTarget}" FontFamily="OpenSansSemibold" FontSize="18" TextColor="{StaticResource PrimaryDark}" />
-                        <Label Text="8 toko x 22 hari" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                        <Label Text="Berdasarkan pengaturan gaji" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
                 </controls:FloatingCard>
             </Grid>

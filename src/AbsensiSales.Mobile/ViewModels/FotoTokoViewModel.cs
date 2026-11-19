@@ -7,90 +7,137 @@ namespace AbsensiSales.Mobile.ViewModels;
 public partial class FotoTokoViewModel : ObservableObject
 {
     private readonly AbsensiFlowState _flow;
+    private readonly NotificationService _notif;
 
-    public FotoTokoViewModel(AbsensiFlowState flow) => _flow = flow;
+    public FotoTokoViewModel(AbsensiFlowState flow, NotificationService notif)
+    {
+        _flow = flow;
+        _notif = notif;
+    }
 
     [ObservableProperty]
     private string _labelToko = string.Empty;
 
     [ObservableProperty]
-    private string _infoFoto = "Foto belum diambil.";
+    private ImageSource? _pratinjauFoto;
 
     [ObservableProperty]
-    private ImageSource? _pratinjauFoto;
+    private bool _adaFoto;
 
     [ObservableProperty]
     private bool _fotoSiap;
 
-    [ObservableProperty]
-    private bool _dalamRadius;
-
-    [ObservableProperty]
-    private string _infoGps = string.Empty;
-
     public void OnAppearing()
     {
-        var toko = _flow.TokoTerpilih;
-        LabelToko = toko is null ? "Toko" : $"{toko.KodeToko} - {toko.NamaToko}";
-        DalamRadius = _flow.DalamRadius;
-        InfoGps = $"{_flow.Latitude:F4}, {_flow.Longitude:F4} - Jarak {_flow.JarakMeter:F0} meter";
+        LabelToko = _flow.TokoTerpilih is null
+            ? "Toko"
+            : $"{_flow.TokoTerpilih.KodeToko} - {_flow.TokoTerpilih.NamaToko}";
+
         FotoSiap = _flow.FotoBukti is not null;
-        if (_flow.FotoBukti is not null)
-        {
-            PratinjauFoto = ImageSource.FromStream(() => new MemoryStream(_flow.FotoBukti));
-            InfoFoto = "Foto bukti dari sesi sebelumnya.";
-        }
-        else
-        {
-            PratinjauFoto = null;
-            InfoFoto = "Foto belum diambil.";
-        }
+        PerbaruiPratinjau();
     }
 
     [RelayCommand]
     private async Task AmbilFotoAsync()
     {
+        if (!MediaPicker.Default.IsCaptureSupported)
+        {
+            // Perangkat tanpa kamera (mis. desktop Windows): foto placeholder
+            // agar alur demo tetap bisa dilanjutkan.
+            SimpanFotoPlaceholder();
+            await _notif.ShowInfoAsync("Kamera tidak tersedia di perangkat ini.");
+            return;
+        }
+
+        if (!await PastikanIzinKameraAsync())
+        {
+            await _notif.ShowErrorAsync("Izin kamera belum aktif. Buka pengaturan aplikasi untuk mengizinkan kamera.");
+            return;
+        }
+
+        FileResult? file;
         try
         {
-            if (MediaPicker.Default.IsCaptureSupported)
-            {
-                var file = await MediaPicker.Default.CapturePhotoAsync();
-                if (file is not null)
-                {
-                    using var stream = await file.OpenReadAsync();
-                    using var ms = new MemoryStream();
-                    await stream.CopyToAsync(ms);
-                    _flow.FotoBukti = ms.ToArray();
-                    PratinjauFoto = ImageSource.FromStream(() => new MemoryStream(_flow.FotoBukti));
-                }
-            }
-            else
-            {
-                // Perangkat tanpa kamera (mis. desktop Windows) -> foto placeholder
-                await BuatFotoPlaceholderAsync();
-            }
+            file = await MediaPicker.Default.CapturePhotoAsync();
         }
         catch (Exception)
         {
-            // Kamera dibatalkan / tidak tersedia -> placeholder
-            await BuatFotoPlaceholderAsync();
+            await _notif.ShowErrorAsync("Kamera gagal dibuka. Silakan coba lagi.");
+            return;
+        }
+
+        if (file is null)
+        {
+            await _notif.ShowInfoAsync("Pengambilan foto dibatalkan.");
+            return;
+        }
+
+        try
+        {
+            using var stream = await file.OpenReadAsync();
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            _flow.FotoBukti = ms.ToArray();
+        }
+        catch (Exception)
+        {
+            await _notif.ShowErrorAsync("Foto gagal dibaca. Silakan ambil ulang.");
+            return;
         }
 
         _flow.WaktuFoto = DateTime.Now.ToString("HH:mm:ss");
-        FotoSiap = _flow.FotoBukti is not null;
-        InfoFoto = FotoSiap
-            ? "Sales dan tampak toko terlihat - foto bukti siap."
-            : "Foto belum diambil.";
+        FotoSiap = true;
+        PerbaruiPratinjau();
+
+        await _notif.ShowSuccessAsync("Foto bukti kunjungan siap.");
     }
 
-    private Task BuatFotoPlaceholderAsync()
+    private void SimpanFotoPlaceholder()
     {
-        // Tanpa kamera (mis. desktop Windows), foto bukti ditandai siap
-        // dan pratinjau memakai placeholder warna di tampilan.
         _flow.FotoBukti = Array.Empty<byte>();
-        PratinjauFoto = null;
+        _flow.WaktuFoto = DateTime.Now.ToString("HH:mm:ss");
         FotoSiap = true;
-        return Task.CompletedTask;
+        PerbaruiPratinjau();
+    }
+
+    /// <summary>
+    /// Pastikan izin kamera sudah diberikan sebelum membuka aplikasi kamera.
+    /// </summary>
+    private static async Task<bool> PastikanIzinKameraAsync()
+    {
+        try
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+            if (status != PermissionStatus.Granted)
+            {
+                status = await Permissions.RequestAsync<Permissions.Camera>();
+            }
+
+            return status == PermissionStatus.Granted;
+        }
+        catch (FeatureNotSupportedException)
+        {
+            // Platform tanpa API izin kamera: biarkan MediaPicker mencoba.
+            return true;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    private void PerbaruiPratinjau()
+    {
+        if (_flow.FotoBukti is { Length: > 0 } data)
+        {
+            PratinjauFoto = ImageSource.FromStream(() => new MemoryStream(data));
+            AdaFoto = true;
+        }
+        else
+        {
+            PratinjauFoto = null;
+            AdaFoto = false;
+        }
     }
 
     [RelayCommand]
@@ -98,8 +145,7 @@ public partial class FotoTokoViewModel : ObservableObject
     {
         if (!FotoSiap)
         {
-            await Shell.Current.DisplayAlert("Foto belum ada",
-                "Ambil foto bukti kunjungan terlebih dahulu.", "OK");
+            await _notif.ShowErrorAsync("Ambil foto bukti kunjungan terlebih dahulu.");
             return;
         }
 

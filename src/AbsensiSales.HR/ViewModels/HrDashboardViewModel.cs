@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
-using AbsensiSales.Core.Models;
-using AbsensiSales.Core.Repositories;
+using AbsensiSales.Core.Api;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -10,23 +9,16 @@ namespace AbsensiSales.HR.ViewModels;
 /// <summary>
 /// Ringkasan utama HR: jumlah sales aktif, kehadiran hari ini, dan
 /// pengajuan perizinan yang masih menunggu persetujuan.
+/// Semua data diambil dari backend API.
 /// </summary>
 public partial class HrDashboardViewModel : ObservableObject
 {
-    private readonly SalesRepository _salesRepo;
-    private readonly KunjunganRepository _kunjunganRepo;
-    private readonly PermohonanRepository _permohonanRepo;
+    private readonly ApiService _api;
     private readonly Services.HrNavigationService _nav;
 
-    public HrDashboardViewModel(
-        SalesRepository salesRepo,
-        KunjunganRepository kunjunganRepo,
-        PermohonanRepository permohonanRepo,
-        Services.HrNavigationService nav)
+    public HrDashboardViewModel(ApiService api, Services.HrNavigationService nav)
     {
-        _salesRepo = salesRepo;
-        _kunjunganRepo = kunjunganRepo;
-        _permohonanRepo = permohonanRepo;
+        _api = api;
         _nav = nav;
     }
 
@@ -53,41 +45,53 @@ public partial class HrDashboardViewModel : ObservableObject
     [ObservableProperty]
     private bool _tidakAdaPengajuan = true;
 
+    [ObservableProperty]
+    private string _pesanError = string.Empty;
+
+    [ObservableProperty]
+    private bool _adaError;
+
     public async Task MuatAsync()
     {
         var hariIni = DateTime.Now.ToString("yyyy-MM-dd");
-        var semuaSales = await _salesRepo.GetAllAsync();
-        var semuaKunjungan = await _kunjunganRepo.GetAllAsync(hariIni);
-        var semuaPending = await _permohonanRepo.GetPendingAsync();
 
-        var salesHadir = semuaSales
-            .Where(sales => semuaKunjungan.Any(kunjungan =>
-                kunjungan.SalesId == sales.Id
-                && kunjungan.Status == nameof(StatusKunjungan.Tersimpan)))
-            .ToList();
+        var hasilSales = await _api.GetSalesAdminAsync();
+        var hasilKunjungan = await _api.GetKunjunganAsync(tanggal: hariIni);
+        var hasilPending = await _api.GetPermohonanAsync("Pending");
 
-        TotalSalesActive = semuaSales.Count.ToString();
-        KaryawanHadir = salesHadir.Count.ToString();
-        PersenHadir = $"{(semuaSales.Count > 0 ? salesHadir.Count * 100 / semuaSales.Count : 0)}% dari total";
-        PengajuanPending = semuaPending.Count.ToString();
+        var daftarSales = hasilSales.Data ?? new List<SalesAdminDto>();
+        var daftarKunjungan = hasilKunjungan.Data ?? new List<KunjunganDto>();
+        var daftarPending = hasilPending.Data ?? new List<PermohonanDto>();
 
-        var pengajuanTerbaru = new List<PermohonanItem>();
-        foreach (var permohonan in semuaPending.Take(4))
-        {
-            var sales = await _salesRepo.GetByIdAsync(permohonan.SalesId);
-            pengajuanTerbaru.Add(PermohonanItem.DariData(permohonan, sales));
-        }
+        var pesan = new List<string>();
+        if (!hasilSales.Sukses) pesan.Add(hasilSales.Pesan);
+        if (!hasilKunjungan.Sukses) pesan.Add(hasilKunjungan.Pesan);
+        if (!hasilPending.Sukses) pesan.Add(hasilPending.Pesan);
+        PesanError = string.Join(" ", pesan.Distinct());
+        AdaError = PesanError.Length > 0;
+
+        int jumlahHadir = daftarKunjungan
+            .Select(kunjungan => kunjungan.IdSales)
+            .Distinct()
+            .Count();
+
+        TotalSalesActive = daftarSales.Count.ToString();
+        KaryawanHadir = jumlahHadir.ToString();
+        PersenHadir = $"{(daftarSales.Count > 0 ? jumlahHadir * 100 / daftarSales.Count : 0)}% dari total";
+        PengajuanPending = daftarPending.Count.ToString();
 
         PengajuanTerbaru.Clear();
-        foreach (var item in pengajuanTerbaru)
-            PengajuanTerbaru.Add(item);
+        foreach (var permohonan in daftarPending.Take(4))
+        {
+            PengajuanTerbaru.Add(PermohonanItem.DariApi(permohonan));
+        }
 
-        TidakAdaPengajuan = pengajuanTerbaru.Count == 0;
+        TidakAdaPengajuan = PengajuanTerbaru.Count == 0;
 
-        var belumHadir = semuaSales.Count - salesHadir.Count;
+        int belumHadir = Math.Max(0, daftarSales.Count - jumlahHadir);
         RingkasanTindakLanjut =
             $"{belumHadir} sales belum mencatat kunjungan hari ini, "
-            + $"{semuaPending.Count} pengajuan menunggu persetujuan.";
+            + $"{daftarPending.Count} pengajuan menunggu persetujuan.";
 
         UpdatePada = DateTime.Now.ToString(
             "dd MMM yyyy HH.mm", CultureInfo.GetCultureInfo("id-ID")) + " WIB";

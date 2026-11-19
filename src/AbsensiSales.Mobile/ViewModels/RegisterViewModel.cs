@@ -1,5 +1,6 @@
 using AbsensiSales.Core.Models;
 using AbsensiSales.Core.Repositories;
+using AbsensiSales.Mobile.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -8,8 +9,13 @@ namespace AbsensiSales.Mobile.ViewModels;
 public partial class RegisterViewModel : ObservableObject
 {
     private readonly SalesRepository _salesRepo;
+    private readonly NotificationService _notif;
 
-    public RegisterViewModel(SalesRepository salesRepo) => _salesRepo = salesRepo;
+    public RegisterViewModel(SalesRepository salesRepo, NotificationService notif)
+    {
+        _salesRepo = salesRepo;
+        _notif = notif;
+    }
 
     [ObservableProperty]
     private string _nama = string.Empty;
@@ -23,22 +29,19 @@ public partial class RegisterViewModel : ObservableObject
     [ObservableProperty]
     private string _password = string.Empty;
 
-    [ObservableProperty]
-    private string _pesanError = string.Empty;
-
     [RelayCommand]
     private async Task DaftarAsync()
     {
         if (string.IsNullOrWhiteSpace(Nama) || string.IsNullOrWhiteSpace(Nip)
             || string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
         {
-            PesanError = "Semua kolom wajib diisi.";
+            await _notif.ShowErrorAsync("Semua kolom wajib diisi.");
             return;
         }
 
         if (await _salesRepo.UsernameExistsAsync(Username.Trim()))
         {
-            PesanError = "Username sudah digunakan.";
+            await _notif.ShowErrorAsync("Username sudah digunakan.");
             return;
         }
 
@@ -51,9 +54,8 @@ public partial class RegisterViewModel : ObservableObject
             Wilayah = "Surabaya Pusat"
         });
 
-        await Shell.Current.DisplayAlert("Berhasil",
-            "Akun sales terdaftar. Silakan masuk.", "OK");
         await Shell.Current.GoToAsync("..");
+        await _notif.ShowSuccessAsync("Akun sales terdaftar. Silakan masuk.");
     }
 
     [RelayCommand]

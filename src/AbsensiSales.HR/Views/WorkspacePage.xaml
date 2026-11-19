@@ -88,12 +88,12 @@
                         </controls:FloatingCard.GestureRecognizers>
                     </controls:FloatingCard>
 
-                    <!-- Info wilayah -->
+                    <!-- Info akun HR yang sedang login -->
                     <Border BackgroundColor="{StaticResource NavySoft}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12" Margin="0,14,0,4">
                         <VerticalStackLayout Spacing="2">
-                            <Label Text="WILAYAH PENJUALAN" TextColor="{StaticResource TextSecondary}" FontSize="10" FontFamily="OpenSansSemibold" />
-                            <Label Text="Surabaya Pusat" TextColor="{StaticResource TextPrimary}" FontFamily="OpenSansSemibold" FontSize="13" />
-                            <Label Text="Tim Jawa Timur" TextColor="{StaticResource TextSecondary}" FontSize="11" />
+                            <Label Text="AKUN HR" TextColor="{StaticResource TextSecondary}" FontSize="10" FontFamily="OpenSansSemibold" />
+                            <Label x:Name="LabelNamaAkun" Text="Admin HRD" TextColor="{StaticResource TextPrimary}" FontFamily="OpenSansSemibold" FontSize="13" />
+                            <Label x:Name="LabelEmailAkun" Text="-" TextColor="{StaticResource TextSecondary}" FontSize="11" />
                         </VerticalStackLayout>
                     </Border>
 
@@ -120,8 +120,8 @@
                 <Grid ColumnDefinitions="*,Auto" Padding="4,0">
                     <Label Grid.Column="0" x:Name="LabelBreadcrumb" Text="Operasional / Pemantauan absensi" TextColor="{StaticResource TextSecondary}" FontSize="13" VerticalOptions="Center" />
                     <HorizontalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="Center">
-                        <Label Text="DATA DEMO" Style="{StaticResource BadgeInfo}" />
-                        <Label Text="RS - Rina Sari - Admin/HRD" TextColor="{StaticResource TextPrimary}" FontSize="13" VerticalOptions="Center" />
+                        <Label Text="ADMIN HR" Style="{StaticResource BadgeInfo}" />
+                        <Label x:Name="LabelNamaPengguna" Text="Admin HRD" TextColor="{StaticResource TextPrimary}" FontSize="13" VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Grid>
             </controls:FloatingCard>

@@ -24,6 +24,12 @@
                         VerticalOptions="Center" />
             </Grid>
 
+            <Label Text="{Binding PesanError}"
+                   IsVisible="{Binding AdaError}"
+                   TextColor="{StaticResource Danger}"
+                   FontSize="12"
+                   Margin="0,0,0,10" />
+
             <!-- Statistik utama -->
             <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10" Margin="0,0,0,12">
                 <controls:FloatingCard Grid.Column="0" Style="{StaticResource StatCard}">

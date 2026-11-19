@@ -13,6 +13,11 @@
 
             <Label Text="Ringkasan laporan absensi &amp; kunjungan" Style="{StaticResource PageTitle}" Margin="0,0,0,4" />
             <Label Text="{Binding JudulTanggal, StringFormat='Pantau kehadiran tim sales, bukti kunjungan, dan status verifikasi dari satu tempat. Diperbarui {0}.'}" Style="{StaticResource PageSubtitle}" Margin="0,0,0,16" />
+            <Label Text="{Binding PesanError}"
+                   IsVisible="{Binding AdaError}"
+                   TextColor="{StaticResource Danger}"
+                   FontSize="12"
+                   Margin="0,0,0,8" />
 
             <!-- Kartu statistik -->
             <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6" Margin="0,0,0,10">

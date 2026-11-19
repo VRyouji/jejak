@@ -45,9 +45,9 @@
                 <Label Text="Masuk Admin HRD" FontSize="24" FontFamily="OpenSansSemibold" />
                 <Label Text="Gunakan akun HR untuk mengelola data absensi sales." Style="{StaticResource PageSubtitle}" Margin="0,0,0,10" />
 
-                <Label Text="Username" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,0,0,4" />
+                <Label Text="Email" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,0,0,4" />
                 <Border Style="{StaticResource InputCard}">
-                    <Entry Text="{Binding Username}" Placeholder="admin" />
+                    <Entry Text="{Binding Username}" Placeholder="hr@example.com" Keyboard="Email" IsSpellCheckEnabled="False" />
                 </Border>
 
                 <Label Text="Password" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,4,0,4" />
@@ -58,9 +58,8 @@
                 <Label Text="{Binding PesanError}" TextColor="{StaticResource Danger}" FontSize="13" />
 
                 <Button Text="Masuk >" Style="{StaticResource PrimaryButton}" Command="{Binding MasukCommand}" Margin="0,8,0,4" AutomationId="ButtonHrLogin" />
-                <Button Text="Daftar akun HRD baru" Style="{StaticResource SecondaryButton}" Command="{Binding BukaRegisterCommand}" />
 
-                <Label Text="Demo: admin / admin123" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" FontSize="12" Margin="0,8,0,0" />
+                <Label Text="Akun seed: hr@example.com / hr123456" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" FontSize="12" Margin="0,8,0,0" />
             </VerticalStackLayout>
         </controls:FloatingCard>
 

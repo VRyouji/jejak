@@ -1,27 +1,23 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
-using AbsensiSales.Core.Models;
-using AbsensiSales.Core.Repositories;
+using AbsensiSales.Core.Api;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace AbsensiSales.HR.ViewModels;
 
 /// <summary>
-/// ViewModel halaman perizinan HR &amp; sales. Data diambil dari SQLite bila
-/// tersedia; jika database masih kosong dipakai data mock agar halaman bisa
-/// langsung diuji tanpa persiapan tambahan.
+/// Halaman perizinan HR &amp; sales. Data dan proses approve/reject
+/// seluruhnya lewat API.
 /// </summary>
 public partial class HrPerizinanViewModel : ObservableObject
 {
-    private readonly PermohonanRepository _permohonanRepo;
-    private readonly SalesRepository _salesRepo;
+    private readonly ApiService _api;
     private readonly List<PermohonanItem> _semua = new();
 
-    public HrPerizinanViewModel(PermohonanRepository permohonanRepo, SalesRepository salesRepo)
+    public HrPerizinanViewModel(ApiService api)
     {
-        _permohonanRepo = permohonanRepo;
-        _salesRepo = salesRepo;
+        _api = api;
     }
 
     public ObservableCollection<PermohonanItem> DaftarPerizinan { get; } = new();
@@ -41,41 +37,30 @@ public partial class HrPerizinanViewModel : ObservableObject
     [ObservableProperty]
     private string _updatePada = string.Empty;
 
+    [ObservableProperty]
+    private string _pesanError = string.Empty;
+
+    [ObservableProperty]
+    private bool _adaError;
+
     public async Task MuatAsync()
     {
-        List<PermohonanItem> hasil;
+        var hasil = await _api.GetPermohonanAsync();
 
-        try
-        {
-            var data = await _permohonanRepo.GetAllAsync();
-
-            if (data.Count == 0)
-            {
-                hasil = BuatDataMock().ToList();
-            }
-            else
-            {
-                hasil = new List<PermohonanItem>();
-
-                foreach (var permohonan in data)
-                {
-                    var sales = await _salesRepo.GetByIdAsync(permohonan.SalesId);
-                    hasil.Add(PermohonanItem.DariData(permohonan, sales));
-                }
-            }
-        }
-        catch
-        {
-            // Database belum siap / gagal dibuka: tetap tampilkan data mock.
-            hasil = BuatDataMock().ToList();
-        }
+        PesanError = hasil.Sukses ? string.Empty : hasil.Pesan;
+        AdaError = PesanError.Length > 0;
 
         _semua.Clear();
-        _semua.AddRange(hasil);
+        if (hasil.Data is not null)
+        {
+            _semua.AddRange(hasil.Data.Select(PermohonanItem.DariApi));
+        }
 
         DaftarPerizinan.Clear();
-        foreach (var item in hasil)
+        foreach (var item in _semua)
+        {
             DaftarPerizinan.Add(item);
+        }
 
         PerbaruiRingkasan();
         UpdatePada = $"Diperbarui {DateTime.Now.ToString("dd MMM yyyy HH.mm", CultureInfo.GetCultureInfo("id-ID"))} WIB";
@@ -85,11 +70,25 @@ public partial class HrPerizinanViewModel : ObservableObject
     private async Task ApproveAsync(PermohonanItem? item)
     {
         if (item is null || !item.Pending)
+        {
             return;
+        }
 
-        item.Status = "Approved";
-        item.CatatanHr = "Disetujui oleh HR.";
-        await SimpanStatusAsync(item, nameof(StatusPermohonan.Disetujui));
+        var hasil = await _api.SetujuiPermohonanAsync(
+            item.Id,
+            setujui: true,
+            catatan: "Disetujui oleh HR.");
+
+        if (!hasil.Sukses)
+        {
+            await Shell.Current.DisplayAlert("Gagal menyetujui", hasil.Pesan, "OK");
+            return;
+        }
+
+        item.Status = ApiMapper.StatusPermohonan(hasil.Data?.Status ?? "Approved");
+        item.CatatanHr = string.IsNullOrWhiteSpace(hasil.Data?.CatatanHr)
+            ? "Disetujui oleh HR."
+            : hasil.Data!.CatatanHr!;
         PerbaruiRingkasan();
 
         await Shell.Current.DisplayAlert(
@@ -102,7 +101,9 @@ public partial class HrPerizinanViewModel : ObservableObject
     private async Task RejectAsync(PermohonanItem? item)
     {
         if (item is null || !item.Pending)
+        {
             return;
+        }
 
         var alasan = await Shell.Current.DisplayPromptAsync(
             "Tolak permohonan",
@@ -114,7 +115,9 @@ public partial class HrPerizinanViewModel : ObservableObject
             keyboard: Keyboard.Text);
 
         if (alasan is null)
+        {
             return;
+        }
 
         if (string.IsNullOrWhiteSpace(alasan))
         {
@@ -125,9 +128,19 @@ public partial class HrPerizinanViewModel : ObservableObject
             return;
         }
 
-        item.Status = "Rejected";
+        var hasil = await _api.SetujuiPermohonanAsync(
+            item.Id,
+            setujui: false,
+            catatan: alasan.Trim());
+
+        if (!hasil.Sukses)
+        {
+            await Shell.Current.DisplayAlert("Gagal menolak", hasil.Pesan, "OK");
+            return;
+        }
+
+        item.Status = ApiMapper.StatusPermohonan(hasil.Data?.Status ?? "Rejected");
         item.CatatanHr = alasan.Trim();
-        await SimpanStatusAsync(item, nameof(StatusPermohonan.Ditolak));
         PerbaruiRingkasan();
 
         await Shell.Current.DisplayAlert(
@@ -139,133 +152,11 @@ public partial class HrPerizinanViewModel : ObservableObject
     [RelayCommand]
     private async Task SegarkanAsync() => await MuatAsync();
 
-    private async Task SimpanStatusAsync(PermohonanItem item, string status)
-    {
-        // Data mock tidak memiliki Id database, jadi cukup diperbarui di memori.
-        if (item.Id <= 0)
-            return;
-
-        var data = (await _permohonanRepo.GetAllAsync())
-            .FirstOrDefault(permohonan => permohonan.Id == item.Id);
-
-        if (data is null)
-            return;
-
-        data.Status = status;
-        data.CatatanHr = item.CatatanHr;
-        await _permohonanRepo.SaveAsync(data);
-    }
-
     private void PerbaruiRingkasan()
     {
         TotalPerizinan = _semua.Count.ToString();
         JumlahPending = _semua.Count(item => item.Pending).ToString();
         JumlahDisetujui = _semua.Count(item => item.Approved).ToString();
         JumlahDitolak = _semua.Count(item => item.Rejected).ToString();
-    }
-
-    private static IEnumerable<PermohonanItem> BuatDataMock()
-    {
-        var hariIni = DateTime.Today;
-        var budaya = CultureInfo.GetCultureInfo("id-ID");
-
-        string Periode(DateTime mulai, DateTime selesai) =>
-            PermohonanItem.FormatRentang(
-                mulai.ToString("yyyy-MM-dd"),
-                selesai.ToString("yyyy-MM-dd"));
-
-        string Diajukan(DateTime waktu) =>
-            waktu.ToString("dd MMM yyyy HH.mm", budaya);
-
-        return new List<PermohonanItem>
-        {
-            new()
-            {
-                Id = 0,
-                SalesId = 0,
-                NamaSales = "Budi Raharjo",
-                Jabatan = "Sales Executive",
-                Nip = "SLS-011",
-                Jenis = "Cuti Tahunan",
-                Periode = Periode(hariIni.AddDays(2), hariIni.AddDays(4)),
-                Alasan = "Acara keluarga di luar kota.",
-                Lampiran = "surat_cuti.pdf",
-                Diajukan = Diajukan(hariIni.AddDays(-1).AddHours(9).AddMinutes(20)),
-                Status = "Pending"
-            },
-            new()
-            {
-                Id = 0,
-                SalesId = 0,
-                NamaSales = "Ayu Ningsih",
-                Jabatan = "Sales Supervisor",
-                Nip = "SLS-022",
-                Jenis = "Izin Sakit",
-                Periode = Periode(hariIni, hariIni),
-                Alasan = "Demam dan disarankan istirahat oleh dokter.",
-                Lampiran = "surat_dokter.jpg",
-                Diajukan = Diajukan(hariIni.AddHours(7).AddMinutes(30)),
-                Status = "Pending"
-            },
-            new()
-            {
-                Id = 0,
-                SalesId = 0,
-                NamaSales = "Citra Dewi",
-                Jabatan = "Sales Representative",
-                Nip = "SLS-015",
-                Jenis = "Izin Keperluan Pribadi",
-                Periode = Periode(hariIni.AddDays(1), hariIni.AddDays(1)),
-                Alasan = "Mengurus administrasi kependudukan.",
-                Lampiran = "Tanpa lampiran",
-                Diajukan = Diajukan(hariIni.AddHours(8).AddMinutes(15)),
-                Status = "Pending"
-            },
-            new()
-            {
-                Id = 0,
-                SalesId = 0,
-                NamaSales = "Doni Kurniawan",
-                Jabatan = "Sales Executive",
-                Nip = "SLS-017",
-                Jenis = "Cuti",
-                Periode = Periode(hariIni.AddDays(-5), hariIni.AddDays(-4)),
-                Alasan = "Keperluan keluarga.",
-                Lampiran = "Tanpa lampiran",
-                Diajukan = Diajukan(hariIni.AddDays(-7)),
-                Status = "Approved",
-                CatatanHr = "Disetujui, pastikan target kunjungan tetap tercapai."
-            },
-            new()
-            {
-                Id = 0,
-                SalesId = 0,
-                NamaSales = "Eka Wijaya",
-                Jabatan = "Admin HR",
-                Nip = "HR-003",
-                Jenis = "Izin Sakit",
-                Periode = Periode(hariIni.AddDays(-2), hariIni.AddDays(-2)),
-                Alasan = "Kontrol rutin ke dokter.",
-                Lampiran = "surat_kontrol.jpg",
-                Diajukan = Diajukan(hariIni.AddDays(-3)),
-                Status = "Approved",
-                CatatanHr = "Disetujui."
-            },
-            new()
-            {
-                Id = 0,
-                SalesId = 0,
-                NamaSales = "Fitri Handayani",
-                Jabatan = "Sales Representative",
-                Nip = "SLS-024",
-                Jenis = "Cuti",
-                Periode = Periode(hariIni, hariIni.AddDays(1)),
-                Alasan = "Keperluan pribadi mendadak.",
-                Lampiran = "Tanpa lampiran",
-                Diajukan = Diajukan(hariIni.AddDays(-1).AddHours(16).AddMinutes(5)),
-                Status = "Rejected",
-                CatatanHr = "Ditolak, jadwal kunjungan padat dan belum ada pengganti."
-            }
-        };
     }
 }

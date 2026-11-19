@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using AbsensiSales.Core.Api;
 using AbsensiSales.Core.Models;
-using AbsensiSales.Core.Repositories;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -9,13 +9,11 @@ namespace AbsensiSales.HR.ViewModels;
 
 public partial class MasterDataViewModel : ObservableObject
 {
-    private readonly SalesRepository _salesRepo;
-    private readonly TokoRepository _tokoRepo;
+    private readonly ApiService _api;
 
-    public MasterDataViewModel(SalesRepository salesRepo, TokoRepository tokoRepo)
+    public MasterDataViewModel(ApiService api)
     {
-        _salesRepo = salesRepo;
-        _tokoRepo = tokoRepo;
+        _api = api;
     }
 
     [ObservableProperty]
@@ -37,6 +35,12 @@ public partial class MasterDataViewModel : ObservableObject
     [ObservableProperty]
     private string _jumlahToko = "0";
 
+    [ObservableProperty]
+    private string _pesanError = string.Empty;
+
+    [ObservableProperty]
+    private bool _adaError;
+
     // ---- Form tambah sales ----
 
     [ObservableProperty]
@@ -49,16 +53,16 @@ public partial class MasterDataViewModel : ObservableObject
     private string _formSalesNama = string.Empty;
 
     [ObservableProperty]
-    private string _formSalesUsername = string.Empty;
+    private string _formSalesEmail = string.Empty;
 
     [ObservableProperty]
     private string _formSalesPassword = string.Empty;
 
     [ObservableProperty]
-    private string _formSalesWilayah = "Surabaya Pusat";
+    private string _formSalesTelepon = string.Empty;
 
     [ObservableProperty]
-    private string _formSalesFoto = string.Empty;
+    private string _formSalesWilayah = string.Empty;
 
     [ObservableProperty]
     private string _pesanErrorSales = string.Empty;
@@ -103,13 +107,46 @@ public partial class MasterDataViewModel : ObservableObject
 
     public async Task MuatAsync()
     {
+        var hasilSales = await _api.GetSalesAdminAsync();
+        var hasilToko = await _api.GetTokoAsync();
+
+        var pesan = new List<string>();
+        if (!hasilSales.Sukses) pesan.Add(hasilSales.Pesan);
+        if (!hasilToko.Sukses) pesan.Add(hasilToko.Pesan);
+        PesanError = string.Join(" ", pesan.Distinct());
+        AdaError = PesanError.Length > 0;
+
         DaftarSales.Clear();
-        foreach (var s in await _salesRepo.GetAllAsync())
-            DaftarSales.Add(s);
+        foreach (var sales in hasilSales.Data ?? new List<SalesAdminDto>())
+        {
+            DaftarSales.Add(new Sales
+            {
+                Id = sales.IdSales,
+                Nip = sales.NomorSales,
+                Nama = sales.Nama,
+                Username = sales.Email,
+                Wilayah = string.IsNullOrWhiteSpace(sales.Wilayah) ? "-" : sales.Wilayah!
+            });
+        }
 
         DaftarToko.Clear();
-        foreach (var t in await _tokoRepo.GetAllAsync())
-            DaftarToko.Add(t);
+        foreach (var toko in hasilToko.Data ?? new List<TokoDto>())
+        {
+            DaftarToko.Add(new Toko
+            {
+                Id = toko.IdToko,
+                KodeToko = string.IsNullOrWhiteSpace(toko.KodeToko)
+                    ? $"TK-{toko.IdToko}"
+                    : toko.KodeToko!,
+                NamaToko = toko.NamaToko,
+                Alamat = toko.Alamat ?? "-",
+                Pemilik = toko.Pemilik ?? string.Empty,
+                Telepon = toko.Telepon ?? string.Empty,
+                Latitude = toko.Latitude ?? 0,
+                Longitude = toko.Longitude ?? 0,
+                RadiusMeter = toko.RadiusMeter
+            });
+        }
 
         JumlahSales = DaftarSales.Count.ToString();
         JumlahToko = DaftarToko.Count.ToString();
@@ -141,41 +178,34 @@ public partial class MasterDataViewModel : ObservableObject
             return;
         }
 
-        try
+        var hasil = await _api.TambahSalesAsync(new SalesCreateRequest
         {
-            var username = FormSalesUsername.Trim();
+            Nama = FormSalesNama.Trim(),
+            Email = FormSalesEmail.Trim(),
+            Password = FormSalesPassword.Trim(),
+            NomorSales = FormSalesNip.Trim(),
+            NomorTelepon = FormSalesTelepon.Trim(),
+            Wilayah = string.IsNullOrWhiteSpace(FormSalesWilayah)
+                ? null
+                : FormSalesWilayah.Trim()
+        });
 
-            if (await _salesRepo.UsernameExistsAsync(username))
-            {
-                TampilkanErrorSales("Username tersebut sudah digunakan sales lain.");
-                return;
-            }
-
-            var nama = FormSalesNama.Trim();
-
-            await _salesRepo.RegisterAsync(new Sales
-            {
-                Nip = FormSalesNip.Trim(),
-                Nama = nama,
-                Username = username,
-                Password = FormSalesPassword.Trim(),
-                Wilayah = FormSalesWilayah.Trim(),
-                FotoReferensi = FormSalesFoto.Trim()
-            });
-
-            IsFormSalesTerbuka = false;
-            IsSalesSelected = true;
-            await MuatAsync();
-
-            await Shell.Current.DisplayAlert(
-                "Sales ditambahkan",
-                $"Akun sales {nama} berhasil ditambahkan.",
-                "OK");
-        }
-        catch
+        if (!hasil.Sukses)
         {
-            TampilkanErrorSales("Data sales gagal disimpan. Silakan coba lagi.");
+            TampilkanErrorSales(hasil.Pesan);
+            return;
         }
+
+        var nama = hasil.Data?.Nama ?? FormSalesNama.Trim();
+
+        IsFormSalesTerbuka = false;
+        IsSalesSelected = true;
+        await MuatAsync();
+
+        await Shell.Current.DisplayAlert(
+            "Sales ditambahkan",
+            $"Akun sales {nama} berhasil ditambahkan.",
+            "OK");
     }
 
     [RelayCommand]
@@ -198,43 +228,35 @@ public partial class MasterDataViewModel : ObservableObject
             return;
         }
 
-        try
+        var hasil = await _api.SimpanTokoAsync(new TokoRequest
         {
-            var kode = FormTokoKode.Trim();
+            Action = "create",
+            KodeToko = string.IsNullOrWhiteSpace(FormTokoKode) ? null : FormTokoKode.Trim(),
+            NamaToko = FormTokoNama.Trim(),
+            Alamat = FormTokoAlamat.Trim(),
+            Pemilik = FormTokoPemilik.Trim(),
+            Telepon = FormTokoTelepon.Trim(),
+            Latitude = latitude,
+            Longitude = longitude,
+            Radius = radius
+        });
 
-            if (await _tokoRepo.GetByKodeAsync(kode) is not null)
-            {
-                TampilkanErrorToko("Kode toko tersebut sudah digunakan.");
-                return;
-            }
-
-            var nama = FormTokoNama.Trim();
-
-            await _tokoRepo.TambahAsync(new Toko
-            {
-                KodeToko = kode,
-                NamaToko = nama,
-                Alamat = FormTokoAlamat.Trim(),
-                Pemilik = FormTokoPemilik.Trim(),
-                Telepon = FormTokoTelepon.Trim(),
-                Latitude = latitude,
-                Longitude = longitude,
-                RadiusMeter = radius
-            });
-
-            IsFormTokoTerbuka = false;
-            IsSalesSelected = false;
-            await MuatAsync();
-
-            await Shell.Current.DisplayAlert(
-                "Toko ditambahkan",
-                $"Toko {nama} dengan radius {radius:F0} m berhasil ditambahkan.",
-                "OK");
-        }
-        catch
+        if (!hasil.Sukses)
         {
-            TampilkanErrorToko("Data toko gagal disimpan. Silakan coba lagi.");
+            TampilkanErrorToko(hasil.Pesan);
+            return;
         }
+
+        var nama = hasil.Data?.NamaToko ?? FormTokoNama.Trim();
+
+        IsFormTokoTerbuka = false;
+        IsSalesSelected = false;
+        await MuatAsync();
+
+        await Shell.Current.DisplayAlert(
+            "Toko ditambahkan",
+            $"Toko {nama} dengan radius {radius:F0} m berhasil ditambahkan.",
+            "OK");
     }
 
     private bool ValidasiFormSales(out string pesan)
@@ -251,9 +273,9 @@ public partial class MasterDataViewModel : ObservableObject
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(FormSalesUsername))
+        if (string.IsNullOrWhiteSpace(FormSalesEmail) || !FormSalesEmail.Contains('@'))
         {
-            pesan = "Username wajib diisi.";
+            pesan = "Email wajib diisi dengan format yang benar.";
             return false;
         }
 
@@ -263,9 +285,9 @@ public partial class MasterDataViewModel : ObservableObject
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(FormSalesWilayah))
+        if (string.IsNullOrWhiteSpace(FormSalesTelepon))
         {
-            pesan = "Wilayah penjualan wajib diisi.";
+            pesan = "Nomor telepon wajib diisi.";
             return false;
         }
 
@@ -273,13 +295,6 @@ public partial class MasterDataViewModel : ObservableObject
                 s.Nip.Trim(), FormSalesNip.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
             pesan = "NIP tersebut sudah terdaftar.";
-            return false;
-        }
-
-        if (DaftarSales.Any(s => string.Equals(
-                s.Username.Trim(), FormSalesUsername.Trim(), StringComparison.OrdinalIgnoreCase)))
-        {
-            pesan = "Username tersebut sudah digunakan sales lain.";
             return false;
         }
 
@@ -297,12 +312,6 @@ public partial class MasterDataViewModel : ObservableObject
         longitude = 0;
         radius = 0;
 
-        if (string.IsNullOrWhiteSpace(FormTokoKode))
-        {
-            pesan = "Kode toko wajib diisi.";
-            return false;
-        }
-
         if (string.IsNullOrWhiteSpace(FormTokoNama))
         {
             pesan = "Nama toko wajib diisi.";
@@ -315,7 +324,8 @@ public partial class MasterDataViewModel : ObservableObject
             return false;
         }
 
-        if (DaftarToko.Any(t => string.Equals(
+        if (!string.IsNullOrWhiteSpace(FormTokoKode)
+            && DaftarToko.Any(t => string.Equals(
                 t.KodeToko.Trim(), FormTokoKode.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
             pesan = "Kode toko tersebut sudah digunakan.";
@@ -356,10 +366,10 @@ public partial class MasterDataViewModel : ObservableObject
     {
         FormSalesNip = string.Empty;
         FormSalesNama = string.Empty;
-        FormSalesUsername = string.Empty;
+        FormSalesEmail = string.Empty;
         FormSalesPassword = string.Empty;
-        FormSalesWilayah = "Surabaya Pusat";
-        FormSalesFoto = string.Empty;
+        FormSalesTelepon = string.Empty;
+        FormSalesWilayah = string.Empty;
         PesanErrorSales = string.Empty;
         AdaErrorSales = false;
     }

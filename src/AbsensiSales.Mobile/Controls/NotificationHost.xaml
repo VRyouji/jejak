@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="AbsensiSales.Mobile.Controls.NotificationHost"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    InputTransparent="True"
+    IsVisible="False"
+    Opacity="0">
+
+    <!-- Notifikasi sesaat: muncul di bawah, hilang otomatis tanpa dialog.
+         Warna solid mengikuti hasil aksi (berhasil/gagal/info). -->
+    <Grid Padding="20,0,20,24" VerticalOptions="End">
+        <Border
+            x:Name="Kartu"
+            Padding="14,12"
+            StrokeThickness="0"
+            StrokeShape="RoundRectangle 16">
+            <Border.Shadow>
+                <Shadow Brush="#10243D" Opacity="0.18" Radius="16" Offset="0,6" />
+            </Border.Shadow>
+
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <Border
+                    x:Name="KotakIkon"
+                    Padding="0"
+                    VerticalOptions="Center"
+                    WidthRequest="26"
+                    HeightRequest="26"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 13">
+                    <Label
+                        x:Name="LabelIkon"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="12"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <Label
+                    x:Name="LabelPesan"
+                    Grid.Column="1"
+                    FontSize="13"
+                    LineBreakMode="WordWrap"
+                    VerticalOptions="Center" />
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

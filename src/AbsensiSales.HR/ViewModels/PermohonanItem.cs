@@ -1,5 +1,5 @@
 using System.Globalization;
-using AbsensiSales.Core.Models;
+using AbsensiSales.Core.Api;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AbsensiSales.HR.ViewModels;
@@ -51,28 +51,31 @@ public partial class PermohonanItem : ObservableObject
             .Take(2)
             .Select(part => char.ToUpperInvariant(part[0])));
 
-    /// <summary>Memetakan data SQLite ke model tampilan perizinan.</summary>
-    public static PermohonanItem DariData(Permohonan permohonan, Sales? sales) => new()
+    /// <summary>Memetakan response permohonan.php ke model tampilan perizinan.</summary>
+    public static PermohonanItem DariApi(PermohonanDto permohonan) => new()
     {
-        Id = permohonan.Id,
-        SalesId = permohonan.SalesId,
-        NamaSales = sales?.Nama ?? "Karyawan",
+        Id = permohonan.IdPermohonan,
+        SalesId = permohonan.IdSales,
+        NamaSales = string.IsNullOrWhiteSpace(permohonan.NamaSales)
+            ? "Karyawan"
+            : permohonan.NamaSales!,
         Jabatan = "Sales Lapangan",
-        Nip = sales?.Nip ?? "-",
+        Nip = string.IsNullOrWhiteSpace(permohonan.NomorSales)
+            ? "-"
+            : permohonan.NomorSales!,
         Jenis = permohonan.Jenis,
         Periode = FormatRentang(permohonan.TanggalMulai, permohonan.TanggalSelesai),
-        Alasan = permohonan.Alasan,
+        Alasan = string.IsNullOrWhiteSpace(permohonan.Alasan)
+            ? "-"
+            : permohonan.Alasan!,
         Lampiran = string.IsNullOrWhiteSpace(permohonan.Lampiran)
             ? "Tanpa lampiran"
-            : permohonan.Lampiran,
-        Diajukan = permohonan.DiajukanPada,
-        Status = permohonan.Status switch
-        {
-            nameof(StatusPermohonan.Disetujui) => "Approved",
-            nameof(StatusPermohonan.Ditolak) => "Rejected",
-            _ => "Pending"
-        },
-        CatatanHr = permohonan.CatatanHr
+            : permohonan.Lampiran!,
+        Diajukan = ApiMapper.TanggalJam(permohonan.CreatedAt),
+        Status = ApiMapper.StatusPermohonan(permohonan.Status),
+        CatatanHr = string.IsNullOrWhiteSpace(permohonan.CatatanHr)
+            ? "-"
+            : permohonan.CatatanHr!
     };
 
     public static string FormatRentang(string mulai, string selesai)

@@ -27,6 +27,11 @@
 
                 <Label Text="Data master" Style="{StaticResource PageTitle}" Margin="0,0,0,4" />
                 <Label Text="Kelola data sales dan toko mitra yang menjadi rujukan sistem absensi." Style="{StaticResource PageSubtitle}" Margin="0,0,0,16" />
+                <Label Text="{Binding PesanError}"
+                       IsVisible="{Binding AdaError}"
+                       TextColor="{StaticResource Danger}"
+                       FontSize="12"
+                       Margin="0,0,0,8" />
 
                 <!-- Segmented tab Sales / Toko -->
                 <controls:FloatingCard Style="{StaticResource Card}" Padding="4">
@@ -201,7 +206,7 @@
                         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto"
                               ColumnSpacing="12" RowSpacing="10">
                             <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
-                                <Label Text="NIP *" Style="{StaticResource FormLabel}" />
+                                <Label Text="NIP / Nomor sales *" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
                                     <Entry Text="{Binding FormSalesNip}" Placeholder="SLS-025" />
                                 </Border>
@@ -215,9 +220,9 @@
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
-                                <Label Text="Username *" Style="{StaticResource FormLabel}" />
+                                <Label Text="Email *" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
-                                    <Entry Text="{Binding FormSalesUsername}" Placeholder="nama.sales" IsSpellCheckEnabled="False" />
+                                    <Entry Text="{Binding FormSalesEmail}" Placeholder="sales@example.com" Keyboard="Email" IsSpellCheckEnabled="False" />
                                 </Border>
                             </VerticalStackLayout>
 
@@ -229,18 +234,18 @@
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="4">
-                                <Label Text="Wilayah penjualan *" Style="{StaticResource FormLabel}" />
+                                <Label Text="Nomor telepon *" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
-                                    <Entry Text="{Binding FormSalesWilayah}" Placeholder="Surabaya Pusat" />
+                                    <Entry Text="{Binding FormSalesTelepon}" Placeholder="0812 3456 7890" Keyboard="Telephone" />
                                 </Border>
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
-                                <Label Text="Foto referensi wajah" Style="{StaticResource FormLabel}" />
+                                <Label Text="Wilayah penjualan" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
-                                    <Entry Text="{Binding FormSalesFoto}" Placeholder="nama_sales.jpg" />
+                                    <Entry Text="{Binding FormSalesWilayah}" Placeholder="Contoh: Surabaya Pusat" />
                                 </Border>
-                                <Label Text="Opsional. Letakkan file di folder reference_faces." Style="{StaticResource FormHint}" />
+                                <Label Text="Opsional. Butuh kolom wilayah di 04_kolom_admin_hr.sql." Style="{StaticResource FormHint}" />
                             </VerticalStackLayout>
                         </Grid>
 

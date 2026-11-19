@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
-using AbsensiSales.Core.Models;
-using AbsensiSales.Core.Repositories;
+using AbsensiSales.Core.Api;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -8,17 +7,12 @@ namespace AbsensiSales.HR.ViewModels;
 
 public partial class MonitoringViewModel : ObservableObject
 {
-    private readonly SalesRepository _salesRepo;
-    private readonly KunjunganRepository _kunjunganRepo;
+    private readonly ApiService _api;
     private readonly Services.HrNavigationService _nav;
 
-    public MonitoringViewModel(
-        SalesRepository salesRepo,
-        KunjunganRepository kunjunganRepo,
-        Services.HrNavigationService nav)
+    public MonitoringViewModel(ApiService api, Services.HrNavigationService nav)
     {
-        _salesRepo = salesRepo;
-        _kunjunganRepo = kunjunganRepo;
+        _api = api;
         _nav = nav;
     }
 
@@ -45,54 +39,74 @@ public partial class MonitoringViewModel : ObservableObject
     [ObservableProperty]
     private string _ringkasanTindakLanjut = string.Empty;
 
+    [ObservableProperty]
+    private string _pesanError = string.Empty;
+
+    [ObservableProperty]
+    private bool _adaError;
+
     public async Task MuatAsync()
     {
         var tanggal = DateTime.Now.ToString("yyyy-MM-dd");
-        var semuaSales = await _salesRepo.GetAllAsync();
-        var semuaKunjungan = await _kunjunganRepo.GetAllAsync(tanggal);
+        var hasilSales = await _api.GetSalesAdminAsync();
+        var hasilKunjungan = await _api.GetKunjunganAsync(tanggal: tanggal);
+
+        var daftarSales = hasilSales.Data ?? new List<SalesAdminDto>();
+        var daftarKunjungan = hasilKunjungan.Data ?? new List<KunjunganDto>();
+
+        var pesan = new List<string>();
+        if (!hasilSales.Sukses) pesan.Add(hasilSales.Pesan);
+        if (!hasilKunjungan.Sukses) pesan.Add(hasilKunjungan.Pesan);
+        PesanError = string.Join(" ", pesan.Distinct());
+        AdaError = PesanError.Length > 0;
 
         int hadir = 0;
         DaftarSales.Clear();
 
-        foreach (var s in semuaSales)
+        foreach (var sales in daftarSales)
         {
-            var kunjunganSales = semuaKunjungan
-                .Where(k => k.SalesId == s.Id && k.Status == nameof(StatusKunjungan.Tersimpan))
+            var kunjunganSales = daftarKunjungan
+                .Where(kunjungan => kunjungan.IdSales == sales.IdSales)
+                .OrderByDescending(kunjungan => ApiMapper.Waktu(kunjungan.WaktuCheckin))
                 .ToList();
 
-            bool hadirHariIni = kunjunganSales.Count > 0
-                || semuaKunjungan.Any(k => k.SalesId == s.Id);
-
-            if (kunjunganSales.Count > 0)
+            bool hadirHariIni = kunjunganSales.Count > 0;
+            if (hadirHariIni)
+            {
                 hadir++;
+            }
 
-            var terakhir = kunjunganSales.OrderByDescending(k => k.WaktuCatat).FirstOrDefault();
+            var terakhir = kunjunganSales.FirstOrDefault();
 
             DaftarSales.Add(new SalesMonitorItem
             {
-                Inisial = s.Inisial,
-                Nama = s.Nama,
-                Nip = s.Nip,
-                Wilayah = s.Wilayah,
-                Status = kunjunganSales.Count > 0 ? "Hadir" : "Belum absen",
-                Waktu = terakhir?.WaktuCatat ?? "-",
-                SalesId = s.Id
+                Inisial = ApiMapper.Inisial(sales.Nama),
+                Nama = sales.Nama,
+                Nip = string.IsNullOrWhiteSpace(sales.NomorSales) ? "-" : sales.NomorSales,
+                Wilayah = string.IsNullOrWhiteSpace(sales.Wilayah) ? "-" : sales.Wilayah!,
+                Status = hadirHariIni ? "Hadir" : "Belum absen",
+                Waktu = terakhir is null ? "-" : ApiMapper.Jam(terakhir.WaktuCheckin),
+                SalesId = sales.IdSales
             });
         }
 
-        TotalSales = semuaSales.Count.ToString();
+        int jumlahBelumAbsen = Math.Max(0, daftarSales.Count - hadir);
+
+        TotalSales = daftarSales.Count.ToString();
         JumlahHadir = hadir.ToString();
-        PersenHadir = $"{(semuaSales.Count > 0 ? hadir * 100 / semuaSales.Count : 0)}% dari total";
-        JumlahBelumAbsen = (semuaSales.Count - hadir).ToString();
-        KunjunganTercatat = semuaKunjungan.Count.ToString();
+        PersenHadir = $"{(daftarSales.Count > 0 ? hadir * 100 / daftarSales.Count : 0)}% dari total";
+        JumlahBelumAbsen = jumlahBelumAbsen.ToString();
+        KunjunganTercatat = daftarKunjungan.Count.ToString();
         UpdatePada = DateTime.Now.ToString("HH.mm") + " WIB";
 
-        int gagal = semuaKunjungan.Count(k => k.Status == nameof(StatusKunjungan.GagalValidasi));
-        int draf = semuaKunjungan.Count(k => k.Status == nameof(StatusKunjungan.Draf));
+        int valid = daftarKunjungan.Count(k => k.StatusVerifikasi == "Valid");
+        int pending = daftarKunjungan.Count(k => k.StatusVerifikasi == "Pending");
+        int invalid = daftarKunjungan.Count(k => k.StatusVerifikasi == "Invalid");
+
         RingkasanTindakLanjut =
-            $"Pantau {semuaSales.Count - hadir} sales belum absen, "
-            + $"{semuaKunjungan.Count(k => k.Status == nameof(StatusKunjungan.Tersimpan))} kunjungan tersimpan"
-            + (gagal + draf > 0 ? $", {gagal + draf} perlu tindak lanjut." : ".");
+            $"Pantau {jumlahBelumAbsen} sales belum absen, "
+            + $"{valid} kunjungan valid, {pending} menunggu verifikasi"
+            + (invalid > 0 ? $", {invalid} gagal validasi." : ".");
     }
 
     [RelayCommand]
@@ -100,7 +114,25 @@ public partial class MonitoringViewModel : ObservableObject
         _nav.NavigateTo(typeof(Views.LaporanHrPage));
 
     [RelayCommand]
-    private async Task KirimPengingatAsync() =>
-        await Shell.Current.DisplayAlert("Pengingat terkirim",
-            "Notifikasi pengingat dikirim ke sales yang belum absen (demo).", "OK");
+    private async Task KirimPengingatAsync()
+    {
+        var belumAbsen = DaftarSales
+            .Where(sales => !sales.Hadir)
+            .Select(sales => sales.Nama)
+            .ToList();
+
+        if (belumAbsen.Count == 0)
+        {
+            await Shell.Current.DisplayAlert(
+                "Semua sudah absen",
+                "Seluruh sales sudah mencatat kunjungan hari ini.",
+                "OK");
+            return;
+        }
+
+        await Shell.Current.DisplayAlert(
+            "Sales belum absen",
+            string.Join(Environment.NewLine, belumAbsen),
+            "OK");
+    }
 }

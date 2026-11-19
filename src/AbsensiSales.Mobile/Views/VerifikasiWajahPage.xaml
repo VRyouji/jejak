@@ -3,85 +3,165 @@
     x:Class="AbsensiSales.Mobile.Views.VerifikasiWajahPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:AbsensiSales.Mobile.Controls"
     xmlns:vm="clr-namespace:AbsensiSales.Mobile.ViewModels"
     x:DataType="vm:VerifikasiWajahViewModel"
     Title="Verifikasi Wajah"
-    Shell.NavBarIsVisible="False">
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20,16,20,24" Spacing="0">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" />
+    </Shell.BackButtonBehavior>
 
-            <Label Text="Verifikasi wajah" Style="{StaticResource TitleLabel}" Margin="0,0,0,4" />
-            <Label Text="{Binding NamaToko, StringFormat='{0} - Tahap 3 dari 5'}" Style="{StaticResource SubtitleLabel}" Margin="0,0,0,14" />
+    <Grid Padding="20,20,20,24" RowDefinitions="Auto,*,Auto" RowSpacing="0">
 
-            <!-- Bingkai kamera -->
-            <Border BackgroundColor="{StaticResource Navy}" StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="300" Padding="0">
-                <Grid>
-                    <!-- Placeholder area kamera -->
-                    <Label Text="KAMERA" TextColor="{StaticResource TextOnNavy}" FontSize="40" FontFamily="OpenSansSemibold" HorizontalOptions="Center" VerticalOptions="Center" />
-                    <Label Text="Kamera depan - Demo" BackgroundColor="#CC2B2319" TextColor="White" FontSize="12" Padding="8,4" HorizontalOptions="Start" VerticalOptions="Start" Margin="12,12,0,0" />
-
-                    <!-- Lingkaran panduan wajah -->
-                    <Border Stroke="{StaticResource Success}" StrokeThickness="2" StrokeShape="RoundRectangle 120" WidthRequest="180" HeightRequest="180" BackgroundColor="Transparent" HorizontalOptions="Center" VerticalOptions="Center" />
-
-                    <Label Text="Posisikan wajah di dalam bingkai" BackgroundColor="#CC2B2319" TextColor="White" FontSize="12" Padding="12,6" HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,16" />
-                </Grid>
-            </Border>
-
-            <!-- Hasil -->
-            <Border Style="{StaticResource CardBorder}" Margin="0,14,0,12" IsVisible="{Binding SudahDiperiksa}">
-                <VerticalStackLayout Spacing="12">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Grid.Column="0" Text="Hasil verifikasi" Style="{StaticResource SectionTitle}" />
-                        <Label Grid.Column="1" Text="{Binding HasilCocok, Converter={StaticResource BoolToStatusConverter}}" Style="{StaticResource BadgeSuccess}" />
-                    </Grid>
-
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                        <Border Grid.Column="0" BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 18" WidthRequest="34" HeightRequest="34">
-                            <Label Text="WAJAH" FontSize="10" TextColor="{StaticResource PrimaryDark}" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Identitas terdeteksi" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                            <Label Text="{Binding IdentitasTerdeteksi}" FontFamily="OpenSansSemibold" FontSize="14" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="OK" TextColor="{StaticResource Success}" FontSize="16" VerticalOptions="Center" />
-                    </Grid>
-
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                        <Border Grid.Column="0" BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 18" WidthRequest="34" HeightRequest="34">
-                            <Label Text="JAM" TextColor="{StaticResource PrimaryDark}" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Waktu verifikasi" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                            <Label Text="{Binding WaktuVerifikasi}" FontFamily="OpenSansSemibold" FontSize="14" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="OK" TextColor="{StaticResource Success}" FontSize="16" VerticalOptions="Center" />
-                    </Grid>
-
-                    <Label Text="{Binding RingkasanSkor}" Style="{StaticResource SubtitleLabel}" />
-                    <Label Text="{Binding PesanHasil}" FontSize="13" TextColor="{StaticResource Danger}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Indikator memproses -->
-            <Border Style="{StaticResource CardBorder}" Margin="0,14,0,12" IsVisible="{Binding HasilDiproses}">
-                <HorizontalStackLayout Spacing="10">
-                    <ActivityIndicator IsRunning="{Binding HasilDiproses}" Color="{StaticResource PrimaryDark}" />
-                    <Label Text="Memindai wajah..." FontSize="14" VerticalOptions="Center" />
-                </HorizontalStackLayout>
-            </Border>
-
-            <!-- Tips -->
-            <Border BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="14" Margin="0,0,0,14">
-                <VerticalStackLayout Spacing="4">
-                    <Label Text="Agar wajah terbaca" TextColor="{StaticResource PrimaryDark}" FontFamily="OpenSansSemibold" FontSize="13" />
-                    <Label Text="Hadapkan wajah ke kamera, gunakan cahaya yang cukup, dan lepas masker atau kacamata gelap." TextColor="{StaticResource TextSecondary}" FontSize="12" />
-                </VerticalStackLayout>
-            </Border>
-
-            <Button Text="Pindai wajah" Style="{StaticResource SecondaryButton}" Command="{Binding PindaiWajahCommand}" Margin="0,0,0,10" AutomationId="ButtonPindaiWajah" />
-            <Button Text="Gunakan hasil &amp; lanjutkan >" Style="{StaticResource PrimaryButton}" Command="{Binding LanjutFotoCommand}" IsEnabled="{Binding HasilCocok}" AutomationId="ButtonLanjutFoto" />
-
+        <!-- Judul halaman -->
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <controls:BackButton Margin="0,0,0,10" />
+            <Label Text="Verifikasi wajah" Style="{StaticResource TitleLabel}" />
+            <Label Text="{Binding NamaToko, StringFormat='{0} - arahkan wajah ke kamera'}" Style="{StaticResource SubtitleLabel}" />
         </VerticalStackLayout>
-    </ScrollView>
+
+        <!-- Area pindai: kamera otomatis aktif, tanpa tombol tambahan -->
+        <Grid Grid.Row="1" RowDefinitions="*,Auto" RowSpacing="14" Margin="0,14,0,0">
+
+            <controls:SolidCard
+                Grid.Row="0"
+                Tone="Navy"
+                Padding="0"
+                MinimumHeightRequest="300"
+                StrokeShape="RoundRectangle 24">
+                <Grid RowDefinitions="Auto,*,Auto">
+
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,14,16,0">
+                        <Label Text="KAMERA DEPAN" TextColor="{StaticResource White}" FontSize="10" FontFamily="OpenSansSemibold" />
+                        <Label Grid.Column="1" Text="PINDAI OTOMATIS" TextColor="{StaticResource White}" FontSize="10" FontFamily="OpenSansSemibold" />
+                    </Grid>
+
+                    <!-- Bingkai wajah di tengah -->
+                    <Grid
+                        x:Name="Bingkai"
+                        Grid.Row="1"
+                        WidthRequest="210"
+                        HeightRequest="210"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+
+                        <Border
+                            BackgroundColor="Transparent"
+                            Stroke="{StaticResource Yellow}"
+                            StrokeThickness="2"
+                            StrokeShape="RoundRectangle 105">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding Terverifikasi}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource Mint}" />
+                                    <Setter Property="StrokeThickness" Value="3" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IzinDitolak}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource NavyMuted}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                        </Border>
+
+                        <Path
+                            Data="M 15,62 L 45,92 L 95,28"
+                            Aspect="Uniform"
+                            WidthRequest="110"
+                            HeightRequest="120"
+                            Stroke="{StaticResource Mint}"
+                            StrokeThickness="8"
+                            StrokeLineCap="Round"
+                            StrokeLineJoin="Round"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            IsVisible="{Binding Terverifikasi}" />
+
+                        <Grid Padding="14" InputTransparent="True" IsVisible="{Binding SedangMemindai}">
+                            <BoxView
+                                x:Name="GarisPindai"
+                                Color="{StaticResource Yellow}"
+                                HeightRequest="2"
+                                HorizontalOptions="Fill"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </Grid>
+
+                    <!-- Status singkat di dalam bingkai -->
+                    <Border
+                        Grid.Row="2"
+                        Margin="16,0,16,16"
+                        Padding="16,9"
+                        BackgroundColor="{StaticResource NavyDeep}"
+                        HorizontalOptions="Center"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 14">
+                        <Label
+                            Text="{Binding JudulStatus}"
+                            TextColor="{StaticResource White}"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="12"
+                            HorizontalTextAlignment="Center" />
+                    </Border>
+                </Grid>
+            </controls:SolidCard>
+
+            <!-- Keterangan status -->
+            <VerticalStackLayout Grid.Row="1" Spacing="8">
+                <HorizontalStackLayout
+                    Spacing="8"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding SedangMemindai}">
+                    <ActivityIndicator
+                        Color="{StaticResource Navy}"
+                        WidthRequest="18"
+                        HeightRequest="18"
+                        VerticalOptions="Center"
+                        IsRunning="{Binding SedangMemindai}" />
+                    <Label
+                        Text="Mohon tetap di dalam bingkai"
+                        FontSize="12"
+                        TextColor="{StaticResource TextSecondary}"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <Label
+                    Text="{Binding PesanStatus}"
+                    FontSize="12"
+                    TextColor="{StaticResource TextSecondary}"
+                    HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Catatan untuk pengguna -->
+        <controls:SolidCard Grid.Row="2" Tone="Yellow" Padding="16" Margin="0,18,0,0">
+            <VerticalStackLayout Spacing="8">
+                <Label
+                    Text="Sebelum memindai"
+                    TextColor="{StaticResource Navy}"
+                    FontFamily="OpenSansSemibold"
+                    FontSize="13" />
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label Text="•" TextColor="{StaticResource Navy}" FontSize="12" />
+                    <Label
+                        Grid.Column="1"
+                        Text="Jangan memakai aksesoris yang berisiko menutupi wajah: masker, kacamata gelap, topi, atau syal."
+                        TextColor="{StaticResource TextSecondary}"
+                        FontSize="11" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label Text="•" TextColor="{StaticResource Navy}" FontSize="12" />
+                    <Label
+                        Grid.Column="1"
+                        Text="Hadapkan wajah lurus ke kamera dan pastikan cahaya cukup."
+                        TextColor="{StaticResource TextSecondary}"
+                        FontSize="11" />
+                </Grid>
+            </VerticalStackLayout>
+        </controls:SolidCard>
+
+        <controls:NotificationHost Grid.RowSpan="3" />
+    </Grid>
 </ContentPage>

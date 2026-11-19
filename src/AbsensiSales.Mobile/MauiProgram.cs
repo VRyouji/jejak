@@ -1,9 +1,11 @@
-﻿using AbsensiSales.Core.Data;
+﻿using AbsensiSales.Core.Api;
+using AbsensiSales.Core.Data;
 using AbsensiSales.Core.Repositories;
 using AbsensiSales.Core.Services;
 using AbsensiSales.Mobile.Services;
 using AbsensiSales.Mobile.ViewModels;
 using AbsensiSales.Mobile.Views;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
 namespace AbsensiSales.Mobile;
@@ -15,6 +17,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+			.UseMauiCommunityToolkit()
 			.ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -32,11 +35,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<KunjunganRepository>();
         builder.Services.AddSingleton<PermohonanRepository>();
         builder.Services.AddSingleton<SessionService>();
+        builder.Services.AddSingleton<ApiService>();
 
         // Layanan aplikasi
         builder.Services.AddSingleton<AbsensiFlowState>();
         builder.Services.AddSingleton<GpsService>();
         builder.Services.AddSingleton<FaceService>();
+        builder.Services.AddSingleton<NotificationService>();
 
         // Shell (di-inject agar bisa lewat DI)
         builder.Services.AddSingleton<AppShell>();

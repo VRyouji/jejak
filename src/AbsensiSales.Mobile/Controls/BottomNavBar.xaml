@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="AbsensiSales.Mobile.Controls.BottomNavBar"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="Root">
+
+    <!-- Navbar bawah mengambang, solid biru tua, tanpa outline. -->
+    <Border
+        BackgroundColor="{StaticResource Navy}"
+        StrokeThickness="0"
+        StrokeShape="RoundRectangle 26"
+        Padding="8"
+        HeightRequest="68">
+
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+
+            <!-- Tab Absensi -->
+            <Border
+                x:Name="AbsensiItem"
+                Grid.Column="0"
+                BackgroundColor="Transparent"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 20"
+                Padding="0,8"
+                AutomationId="TabAbsensi">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAbsensiTapped" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Path
+                        x:Name="AbsensiIcon"
+                        Data="M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.9 3,5V19C3,20.1 3.89,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M19,19H5V8H19V19M9.5,16.5L7,14L5.6,15.4L9.5,19.3L15.9,12.9L14.5,11.5L9.5,16.5Z"
+                        Fill="#FFFFFF"
+                        Aspect="Uniform"
+                        WidthRequest="22"
+                        HeightRequest="22"
+                        HorizontalOptions="Center" />
+                    <Label
+                        x:Name="AbsensiLabel"
+                        Text="Absensi"
+                        TextColor="#FFFFFF"
+                        FontSize="11"
+                        FontFamily="OpenSansSemibold"
+                        HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Tab Laporan -->
+            <Border
+                x:Name="LaporanItem"
+                Grid.Column="1"
+                BackgroundColor="Transparent"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 20"
+                Padding="0,8"
+                AutomationId="TabLaporan">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnLaporanTapped" />
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Path
+                        x:Name="LaporanIcon"
+                        Data="M4,9 L8,9 L8,20 L4,20 Z M10,4 L14,4 L14,20 L10,20 Z M16,12 L20,12 L20,20 L16,20 Z"
+                        Fill="#FFFFFF"
+                        Aspect="Uniform"
+                        WidthRequest="22"
+                        HeightRequest="22"
+                        HorizontalOptions="Center" />
+                    <Label
+                        x:Name="LaporanLabel"
+                        Text="Laporan"
+                        TextColor="#FFFFFF"
+                        FontSize="11"
+                        FontFamily="OpenSansSemibold"
+                        HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+        </Grid>
+    </Border>
+</ContentView>

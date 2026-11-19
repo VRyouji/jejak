@@ -12,6 +12,11 @@ public partial class PayrollItem
     public required string StatusTarget { get; init; }
     public required decimal TotalGaji { get; init; }
 
+    public required decimal GajiPokok { get; init; }
+    public required decimal InsentifPerKunjungan { get; init; }
+    public required decimal TotalInsentif { get; init; }
+    public required decimal TotalPotongan { get; init; }
+
     public string TotalGajiText =>
         $"Rp {TotalGaji.ToString("N0", CultureInfo.InvariantCulture)}";
 }

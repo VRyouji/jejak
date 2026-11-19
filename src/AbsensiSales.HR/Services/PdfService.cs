@@ -10,10 +10,6 @@ namespace AbsensiSales.HR.Services;
 
 public sealed class PdfService
 {
-    private const decimal GajiPokok = 2_500_000m;
-    private const decimal BonusPerKunjungan = 15_000m;
-    private const int HariKerjaBulanan = 22;
-
     private static readonly CultureInfo Indonesia = CultureInfo.GetCultureInfo("id-ID");
 
     static PdfService()
@@ -175,8 +171,9 @@ public sealed class PdfService
 
     private static void TulisRincianGaji(TableDescriptor table, PayrollItem item)
     {
-        decimal tunjangan = item.KunjunganToko * BonusPerKunjungan;
-        decimal potongan = item.JumlahIzin * (GajiPokok / HariKerjaBulanan);
+        decimal potonganPerHari = item.JumlahIzin > 0
+            ? item.TotalPotongan / item.JumlahIzin
+            : 0;
 
         table.ColumnsDefinition(columns =>
         {
@@ -189,9 +186,17 @@ public sealed class PdfService
         table.Cell().Element(HeaderCell).Text("Keterangan");
         table.Cell().Element(HeaderCell).AlignRight().Text("Nominal");
 
-        TulisBarisGaji(table, "Gaji Pokok", "Gaji bulanan", Rupiah(GajiPokok));
-        TulisBarisGaji(table, "Tunjangan Kunjungan", $"{item.KunjunganToko} x {Rupiah(BonusPerKunjungan)}", Rupiah(tunjangan));
-        TulisBarisGaji(table, "Potongan Izin", $"{item.JumlahIzin} x {Rupiah(GajiPokok / HariKerjaBulanan)}", $"-{Rupiah(potongan)}");
+        TulisBarisGaji(table, "Gaji Pokok", "Sesuai pengaturan gaji", Rupiah(item.GajiPokok));
+        TulisBarisGaji(
+            table,
+            "Tunjangan Kunjungan",
+            $"{item.KunjunganToko} x {Rupiah(item.InsentifPerKunjungan)}",
+            Rupiah(item.TotalInsentif));
+        TulisBarisGaji(
+            table,
+            "Potongan Izin",
+            $"{item.JumlahIzin} x {Rupiah(potonganPerHari)}",
+            $"-{Rupiah(item.TotalPotongan)}");
     }
 
     private static void TulisBarisGaji(TableDescriptor table, string komponen, string keterangan, string nominal)

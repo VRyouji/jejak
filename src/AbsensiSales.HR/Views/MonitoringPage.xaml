@@ -13,6 +13,11 @@
 
             <Label Text="Pemantauan absensi sales" Style="{StaticResource PageTitle}" Margin="0,0,0,4" />
             <Label Text="Pantau kehadiran, bukti kunjungan, dan status verifikasi dari seluruh sales di satu tempat." Style="{StaticResource PageSubtitle}" Margin="0,0,0,16" />
+            <Label Text="{Binding PesanError}"
+                   IsVisible="{Binding AdaError}"
+                   TextColor="{StaticResource Danger}"
+                   FontSize="12"
+                   Margin="0,0,0,8" />
 
             <!-- Kartu statistik -->
             <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6" Margin="0,0,0,10">
@@ -21,7 +26,7 @@
                         <VerticalStackLayout Grid.Column="0" Spacing="3">
                             <Label Text="Total sales" FontSize="12" TextColor="{StaticResource TextSecondary}" />
                             <Label Text="{Binding TotalSales}" FontSize="28" FontFamily="OpenSansSemibold" />
-                            <Label Text="Tim Jawa Timur" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                            <Label Text="Tim sales terdaftar" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                         </VerticalStackLayout>
                         <Border Grid.Column="1" Style="{StaticResource StatIconBubble}" BackgroundColor="{StaticResource InfoBg}">
                             <Label Text="&#xf233;" Style="{StaticResource StatIcon}" TextColor="{StaticResource PrimaryDark}" />
@@ -90,7 +95,8 @@
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
                                         <Label Text="{Binding Nama}" FontFamily="OpenSansSemibold" FontSize="13" />
-                                        <Label Text="{Binding Nip, StringFormat='{0} - Surabaya Pusat'}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                        <Label Text="{Binding Nip, StringFormat='NIP {0}'}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
+                                        <Label Text="{Binding Wilayah}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                                     </VerticalStackLayout>
                                     <Border Grid.Column="2"
                                             BackgroundColor="{Binding Status, Converter={StaticResource StatusPermohonanToBackgroundConverter}}"
@@ -123,7 +129,7 @@
                     <Label Text="{Binding RingkasanTindakLanjut}" Style="{StaticResource PageSubtitle}" />
                     <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="10" HorizontalOptions="Start">
                         <Button Grid.Column="0" Text="Buka laporan >" Style="{StaticResource SecondaryButton}" Command="{Binding BukaLaporanCommand}" />
-                        <Button Grid.Column="1" Text="Kirim pengingat" Style="{StaticResource PrimaryButton}" Command="{Binding KirimPengingatCommand}" />
+                        <Button Grid.Column="1" Text="Lihat yang belum absen" Style="{StaticResource PrimaryButton}" Command="{Binding KirimPengingatCommand}" />
                     </Grid>
                 </VerticalStackLayout>
             </controls:FloatingCard>

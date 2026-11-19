@@ -8,7 +8,7 @@
     x:DataType="vm:HrPerizinanViewModel"
     Title="Perizinan HR &amp; Sales">
 
-    <Grid Padding="28,20" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12">
+    <Grid Padding="28,20" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="12">
 
         <!-- Judul halaman -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
@@ -23,8 +23,14 @@
                     VerticalOptions="Center" />
         </Grid>
 
+        <Label Grid.Row="1"
+               Text="{Binding PesanError}"
+               IsVisible="{Binding AdaError}"
+               TextColor="{StaticResource Danger}"
+               FontSize="12" />
+
         <!-- Ringkasan -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+        <Grid Grid.Row="2" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
             <controls:FloatingCard Grid.Column="0" Style="{StaticResource StatCard}">
                 <VerticalStackLayout Spacing="3">
                     <Label Text="Total pengajuan" FontSize="12" TextColor="{StaticResource TextSecondary}" />
@@ -52,13 +58,13 @@
         </Grid>
 
         <!-- Info terakhir diperbarui -->
-        <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
             <Label Grid.Column="0" Text="Daftar pengajuan" Style="{StaticResource SectionTitle}" VerticalOptions="Center" />
             <Label Grid.Column="1" Text="{Binding UpdatePada}" FontSize="12" TextColor="{StaticResource TextSecondary}" VerticalOptions="Center" />
         </Grid>
 
         <!-- Daftar perizinan -->
-        <CollectionView Grid.Row="3"
+        <CollectionView Grid.Row="4"
                         ItemsSource="{Binding DaftarPerizinan}"
                         SelectionMode="None">
             <CollectionView.ItemsLayout>

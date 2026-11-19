@@ -12,12 +12,19 @@ public partial class PengisianTokoViewModel : ObservableObject
     private readonly TokoRepository _tokoRepo;
     private readonly GpsService _gps;
     private readonly AbsensiFlowState _flow;
+    private readonly NotificationService _notif;
+    private bool _sudahNotifAbsensi;
 
-    public PengisianTokoViewModel(TokoRepository tokoRepo, GpsService gps, AbsensiFlowState flow)
+    public PengisianTokoViewModel(
+        TokoRepository tokoRepo,
+        GpsService gps,
+        AbsensiFlowState flow,
+        NotificationService notif)
     {
         _tokoRepo = tokoRepo;
         _gps = gps;
         _flow = flow;
+        _notif = notif;
     }
 
     public ObservableCollection<Toko> DaftarToko { get; } = new();
@@ -67,6 +74,12 @@ public partial class PengisianTokoViewModel : ObservableObject
             : _flow.WaktuAbsensiAwal;
 
         WaktuPengisian = DateTime.Now.ToString("dd MMM yyyy - HH.mm.ss 'WIB'");
+
+        if (!_sudahNotifAbsensi)
+        {
+            _sudahNotifAbsensi = true;
+            await _notif.ShowSuccessAsync($"Absensi pertama tercatat pukul {WaktuAbsensiAwal} WIB.");
+        }
 
         if (DaftarToko.Count == 0)
         {
@@ -129,15 +142,13 @@ public partial class PengisianTokoViewModel : ObservableObject
     {
         if (TokoTerpilih is null)
         {
-            await Shell.Current.DisplayAlert("Toko belum dipilih",
-                "Pilih toko yang dikunjungi terlebih dahulu.", "OK");
+            await _notif.ShowErrorAsync("Pilih toko yang dikunjungi terlebih dahulu.");
             return;
         }
 
         if (!DalamRadius)
         {
-            await Shell.Current.DisplayAlert("Di luar radius toko",
-                "Anda belum berada di area toko. Absensi hanya diterima dalam radius toko.", "OK");
+            await _notif.ShowErrorAsync("Anda di luar radius toko. Absensi hanya diterima di area toko.");
             return;
         }
 

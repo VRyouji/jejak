@@ -3,80 +3,114 @@
     x:Class="AbsensiSales.Mobile.Views.FotoTokoPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:AbsensiSales.Mobile.Controls"
     xmlns:vm="clr-namespace:AbsensiSales.Mobile.ViewModels"
     x:DataType="vm:FotoTokoViewModel"
     Title="Foto Toko"
-    Shell.NavBarIsVisible="False">
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20,16,20,24" Spacing="0">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" />
+    </Shell.BackButtonBehavior>
 
-            <Label Text="Foto dengan toko" Style="{StaticResource TitleLabel}" Margin="0,0,0,4" />
-            <Label Text="{Binding LabelToko, StringFormat='{0} - Tahap 4 dari 5'}" Style="{StaticResource SubtitleLabel}" Margin="0,0,0,14" />
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="20,20,20,24" Spacing="0">
 
-            <!-- Pratinjau foto -->
-            <Border BackgroundColor="{StaticResource Navy}" StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="280" Padding="0">
-                <Grid>
-                    <Label Text="Pratinjau foto" BackgroundColor="#CC2B2319" TextColor="White" FontSize="12" Padding="8,4" HorizontalOptions="Start" VerticalOptions="Start" Margin="12,12,0,0" />
+                <controls:BackButton Margin="0,0,0,12" />
 
-                    <!-- Placeholder / foto -->
-                    <Image Source="{Binding PratinjauFoto}" Aspect="AspectFill" IsVisible="{Binding FotoSiap}" />
-                    <Label Text="FOTO" FontSize="48" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding FotoSiap, Converter={StaticResource InvertedBoolConverter}}" />
+                <Label Text="Foto dengan toko" Style="{StaticResource TitleLabel}" Margin="0,0,0,6" />
+                <Label Text="{Binding LabelToko}" Style="{StaticResource SubtitleLabel}" Margin="0,0,0,16" />
 
-                    <VerticalStackLayout BackgroundColor="#CC2B2319" Padding="12,8" HorizontalOptions="Fill" VerticalOptions="End" Spacing="2">
-                        <Label Text="{Binding LabelToko}" TextColor="White" FontFamily="OpenSansSemibold" FontSize="13" />
-                        <Label Text="Pastikan wajah sales dan tampak toko terlihat" TextColor="{StaticResource TextOnNavy}" FontSize="11" />
-                    </VerticalStackLayout>
-                </Grid>
-            </Border>
+                <!-- Pratinjau foto / keadaan belum ada foto -->
+                <Border Padding="0" HeightRequest="300" StrokeThickness="0" StrokeShape="RoundRectangle 20">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#3B3B3B" Offset="0" />
+                            <GradientStop Color="#D6D6D6" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
 
-            <!-- Kontrol kamera -->
-            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="16" Margin="0,16,0,14" HorizontalOptions="Center">
-                <Button Grid.Column="0" Text="Ambil ulang" Style="{StaticResource GhostButton}" Command="{Binding AmbilFotoCommand}" />
-                <Border Grid.Column="1" BackgroundColor="{StaticResource Primary}" StrokeThickness="0" StrokeShape="RoundRectangle 30" WidthRequest="60" HeightRequest="60">
+                    <Grid>
+                        <Label
+                            Text="Belum ada foto yang di upload"
+                            TextColor="{StaticResource White}"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="14"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            IsVisible="{Binding AdaFoto, Converter={StaticResource InvertedBoolConverter}}">
+                            <Label.Shadow>
+                                <Shadow Brush="#000000" Opacity="0.35" Radius="10" Offset="0,2" />
+                            </Label.Shadow>
+                        </Label>
+
+                        <Image
+                            Source="{Binding PratinjauFoto}"
+                            Aspect="AspectFill"
+                            IsVisible="{Binding AdaFoto}" />
+                    </Grid>
+                </Border>
+
+                <!-- Tombol kamera -->
+                <Border
+                    Margin="0,20,0,0"
+                    BackgroundColor="{StaticResource Yellow}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 35"
+                    WidthRequest="70"
+                    HeightRequest="70"
+                    HorizontalOptions="Center"
+                    AutomationId="ButtonAmbilFoto">
+                    <Border.Shadow>
+                        <Shadow Brush="#10243D" Opacity="0.22" Radius="12" Offset="0,6" />
+                    </Border.Shadow>
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding AmbilFotoCommand}" />
                     </Border.GestureRecognizers>
+
+                    <Grid WidthRequest="34" HeightRequest="30" HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True">
+                        <Border
+                            BackgroundColor="{StaticResource Navy}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 2"
+                            WidthRequest="12"
+                            HeightRequest="9"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Start" />
+                        <Border
+                            BackgroundColor="{StaticResource Navy}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 5"
+                            WidthRequest="34"
+                            HeightRequest="22"
+                            HorizontalOptions="Center"
+                            VerticalOptions="End" />
+                        <Border
+                            BackgroundColor="{StaticResource Yellow}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 7"
+                            WidthRequest="14"
+                            HeightRequest="14"
+                            Margin="0,0,0,4"
+                            HorizontalOptions="Center"
+                            VerticalOptions="End" />
+                    </Grid>
                 </Border>
-                <Button Grid.Column="2" Text="Kamera" Style="{StaticResource GhostButton}" Command="{Binding AmbilFotoCommand}" />
-            </Grid>
 
-            <!-- Bukti kunjungan -->
-            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
-                <VerticalStackLayout Spacing="12">
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Grid.Column="0" Text="Bukti kunjungan" Style="{StaticResource SectionTitle}" />
-                        <Label Grid.Column="1" Text="Foto siap" Style="{StaticResource BadgeSuccess}" IsVisible="{Binding FotoSiap}" />
-                    </Grid>
+                <Label
+                    Text="Pastikan wajah dan tampak toko terlihat."
+                    Style="{StaticResource SubtitleLabel}"
+                    HorizontalTextAlignment="Center"
+                    Margin="0,14,0,20" />
 
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                        <Border Grid.Column="0" BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 18" WidthRequest="34" HeightRequest="34">
-                            <Label Text="FOTO" FontSize="11" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Foto toko" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                            <Label Text="{Binding InfoFoto}" FontFamily="OpenSansSemibold" FontSize="13" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="OK" TextColor="{StaticResource Success}" FontSize="16" VerticalOptions="Center" IsVisible="{Binding FotoSiap}" />
-                    </Grid>
+                <Button Text="Gunakan foto &amp; tinjau data" Style="{StaticResource PrimaryButton}" Command="{Binding GunakanFotoCommand}" AutomationId="ButtonGunakanFoto" />
 
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                        <Border Grid.Column="0" BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 18" WidthRequest="34" HeightRequest="34">
-                            <Label Text="GPS" TextColor="{StaticResource PrimaryDark}" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                            <Label Text="GPS saat pengambilan" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                            <Label Text="{Binding InfoGps}" FontFamily="OpenSansSemibold" FontSize="13" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="OK" TextColor="{StaticResource Success}" FontSize="16" VerticalOptions="Center" IsVisible="{Binding DalamRadius}" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
+            </VerticalStackLayout>
+        </ScrollView>
 
-            <Label Text="Pastikan wajah sales dan bagian depan toko terlihat. Foto buram? Ambil ulang sebelum melanjutkan." Style="{StaticResource SubtitleLabel}" Margin="0,0,0,14" />
-
-            <Button Text="Gunakan foto &amp; tinjau data >" Style="{StaticResource PrimaryButton}" Command="{Binding GunakanFotoCommand}" AutomationId="ButtonGunakanFoto" />
-
-        </VerticalStackLayout>
-    </ScrollView>
+        <controls:NotificationHost />
+    </Grid>
 </ContentPage>

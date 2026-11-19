@@ -1,49 +1,71 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="AbsensiSales.Mobile.Views.RegisterPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:AbsensiSales.Mobile.Controls"
     xmlns:vm="clr-namespace:AbsensiSales.Mobile.ViewModels"
     x:DataType="vm:RegisterViewModel"
     Title="Daftar Sales"
-    Shell.NavBarIsVisible="False">
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="24,32,24,32" Spacing="0">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" />
+    </Shell.BackButtonBehavior>
 
-            <Label Text="Buat akun sales" Style="{StaticResource TitleLabel}" Margin="0,0,0,6" />
-            <Label Text="Daftarkan akun untuk mulai mencatat absensi dan kunjungan toko." Style="{StaticResource SubtitleLabel}" Margin="0,0,0,20" />
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="24,28,24,32" Spacing="0">
 
-            <Border Style="{StaticResource CardBorder}" Padding="20,24">
-                <VerticalStackLayout Spacing="0">
+                <controls:BackButton Margin="0,0,0,16" />
 
-                <Label Text="Nama lengkap" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,0,0,6" />
-                <Border Style="{StaticResource CardBorder}" Padding="12,0" Margin="0,0,0,14">
-                    <Entry Text="{Binding Nama}" Placeholder="Nama lengkap" />
-                </Border>
+                <HorizontalStackLayout Spacing="10" Margin="0,0,0,22">
+                    <controls:SolidCard Tone="Navy" Padding="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 13">
+                        <Label Text="JS" TextColor="{StaticResource White}" FontFamily="OpenSansSemibold" FontSize="15" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </controls:SolidCard>
+                    <VerticalStackLayout Spacing="0" VerticalOptions="Center">
+                        <Label Text="Jejak Sales" FontSize="17" FontFamily="OpenSansSemibold" />
+                        <Label Text="Pendaftaran sales baru" FontSize="10" TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
 
-                <Label Text="NIP / ID Sales" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,0,0,6" />
-                <Border Style="{StaticResource CardBorder}" Padding="12,0" Margin="0,0,0,14">
-                    <Entry Text="{Binding Nip}" Placeholder="SLS-000" />
-                </Border>
+                <Label Text="Buat akun sales" Style="{StaticResource TitleLabel}" Margin="0,0,0,6" />
+                <Label Text="Daftarkan akun untuk mulai mencatat absensi dan kunjungan toko." Style="{StaticResource SubtitleLabel}" Margin="0,0,0,20" />
 
-                <Label Text="Username" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,0,0,6" />
-                <Border Style="{StaticResource CardBorder}" Padding="12,0" Margin="0,0,0,14">
-                    <Entry Text="{Binding Username}" Placeholder="username" />
-                </Border>
+                <controls:SolidCard Tone="White" Padding="20,22">
+                    <VerticalStackLayout Spacing="0">
 
-                <Label Text="Password" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,0,0,6" />
-                <Border Style="{StaticResource CardBorder}" Padding="12,0" Margin="0,0,0,8">
-                    <Entry Text="{Binding Password}" IsPassword="True" Placeholder="Minimal 6 karakter" />
-                </Border>
+                        <Label Text="Nama lengkap" FontFamily="OpenSansSemibold" FontSize="12" Margin="0,0,0,6" />
+                        <controls:SolidCard Tone="Yellow" Padding="12,0" Margin="0,0,0,14" StrokeShape="RoundRectangle 14">
+                            <Entry Text="{Binding Nama}" Placeholder="Nama lengkap" />
+                        </controls:SolidCard>
 
-                <Label Text="{Binding PesanError}" TextColor="{StaticResource Danger}" FontSize="13" Margin="0,8,0,0" />
+                        <Label Text="NIP / ID Sales" FontFamily="OpenSansSemibold" FontSize="12" Margin="0,0,0,6" />
+                        <controls:SolidCard Tone="Yellow" Padding="12,0" Margin="0,0,0,14" StrokeShape="RoundRectangle 14">
+                            <Entry Text="{Binding Nip}" Placeholder="SLS-000" />
+                        </controls:SolidCard>
 
-                <Button Text="Daftar >" Style="{StaticResource PrimaryButton}" Command="{Binding DaftarCommand}" Margin="0,16,0,10" />
-                <Button Text="Kembali" Style="{StaticResource GhostButton}" Command="{Binding KembaliCommand}" />
-                </VerticalStackLayout>
-            </Border>
+                        <Label Text="Username" FontFamily="OpenSansSemibold" FontSize="12" Margin="0,0,0,6" />
+                        <controls:SolidCard Tone="Yellow" Padding="12,0" Margin="0,0,0,14" StrokeShape="RoundRectangle 14">
+                            <Entry Text="{Binding Username}" Placeholder="username" />
+                        </controls:SolidCard>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                        <Label Text="Password" FontFamily="OpenSansSemibold" FontSize="12" Margin="0,0,0,6" />
+                        <controls:SolidCard Tone="Yellow" Padding="12,0" Margin="0,0,0,8" StrokeShape="RoundRectangle 14">
+                            <Entry Text="{Binding Password}" IsPassword="True" Placeholder="Minimal 6 karakter" />
+                        </controls:SolidCard>
+
+                        <Button Text="Daftar" Style="{StaticResource PrimaryButton}" Command="{Binding DaftarCommand}" Margin="0,16,0,10" />
+                        <Button Text="Kembali" Style="{StaticResource GhostButton}" Command="{Binding KembaliCommand}" />
+                    </VerticalStackLayout>
+                </controls:SolidCard>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:NotificationHost />
+    </Grid>
 </ContentPage>
+
+

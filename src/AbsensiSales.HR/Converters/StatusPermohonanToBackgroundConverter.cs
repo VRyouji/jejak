@@ -12,8 +12,8 @@ public class StatusPermohonanToBackgroundConverter : IValueConverter
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         (value as string) switch
         {
-            "Approved" or "Disetujui" or "Hadir" or "Tersimpan" => Color.FromArgb("#E9F6E6"),
-            "Rejected" or "Ditolak" or "Tidak hadir" => Color.FromArgb("#FDECEA"),
+            "Approved" or "Disetujui" or "Hadir" or "Tersimpan" or "Valid" => Color.FromArgb("#E9F6E6"),
+            "Rejected" or "Ditolak" or "Tidak hadir" or "Gagal validasi" or "Invalid" => Color.FromArgb("#FDECEA"),
             _ => Color.FromArgb("#FFF3C9")
         };
 
