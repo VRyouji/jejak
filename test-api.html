@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test API - Absensi Sales</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #f5f5f5; color: #111; }
+  .container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  h1 { font-size: 1.25rem; margin: 0; }
+  .badge { background: #10b981; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; }
+
+  .card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 16px; }
+  .grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 640px){ .grid { grid-template-columns: 1fr; } }
+
+  label { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #666; display: block; margin-bottom: 6px; }
+  input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; }
+  textarea { min-height: 120px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid #10b981; border-color: #10b981; }
+
+  .row { display: flex; gap: 12px; align-items: end; margin-bottom: 12px; flex-wrap: wrap; }
+  .btn { padding: 10px 18px; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: #e5e7eb; color: #111; }
+  .btn-secondary:hover { background: #d1d5db; }
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+
+  .quick-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .qb { padding: 6px 12px; font-size: 0.85rem; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; }
+  .qb:hover { background: #e5e7eb; }
+
+  #response { background: #1e293b; color: #e2e8f0; border-radius: 6px; padding: 16px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.85rem; white-space: pre-wrap; word-break: break-all; min-height: 150px; }
+  .resp-header { display: flex; gap: 16px; margin-bottom: 8px; font-size: 0.8rem; color: #94a3b8; }
+  .status { font-weight: 700; }
+  .ok { color: #22c55e; }
+  .err { color: #ef4444; }
+  .warn { color: #f59e0b; }
+
+  .endpoint-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 12px; }
+  .ep { background: #f1f5f9; padding: 8px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; user-select: none; }
+  .ep:hover { background: #e2e8f0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🧪 Test API</h1>
+    <span class="badge">Absensi Sales</span>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>Method</label>
+        <select id="method">
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+      </div>
+      <div>
+        <label>URL</label>
+        <input type="url" id="url" value="https://jejaksales.site.je/health.php" placeholder="https://domain-kamu/endpoint.php">
+      </div>
+      <div style="display:flex; align-items:end; gap:8px;">
+        <label style="margin-bottom:0;">Token (Bearer)</label>
+        <input type="text" id="token" placeholder="Bearer token dari login">
+      </div>
+    </div>
+
+    <div class="quick-buttons">
+      <span class="qb" onclick="setUrl('health.php')">GET /health.php</span>
+      <span class="qb" onclick="setUrl('login.php')">POST /login.php</span>
+      <span class="qb" onclick="setUrl('toko.php')">GET /toko.php</span>
+      <span class="qb" onclick="setUrl('absen.php')">POST /absen.php</span>
+      <span class="qb" onclick="setUrl('register.php')">POST /register.php</span>
+      <span class="qb" onclick="setUrl('kunjungan.php')">GET /kunjungan.php</span>
+      <span class="qb" onclick="setUrl('logout.php')">POST /logout.php</span>
+    </div>
+
+    <div class="row">
+      <label>Body (JSON)</label>
+    </div>
+    <textarea id="body" placeholder='{
+  "email": "andi@example.com",
+  "password": "demo123"
+}'></textarea>
+
+    <div class="row">
+      <button class="btn btn-primary" onclick="sendRequest()">▶ Kirim Request</button>
+      <button class="btn btn-secondary" onclick="clearResponse()">🗑 Hapus Response</button>
+      <button class="btn btn-danger" onclick="copyResponse()">📋 Salin Response</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="resp-header">
+      <span class="status" id="statusText">-</span>
+      <span id="statusBadge" class="warn">-</span>
+      <span id="timeText">-</span>
+    </div>
+    <div id="response">Belum ada request dikirim.</div>
+  </div>
+
+  <div class="card">
+    <label style="margin-bottom:8px;">Endpoint cepat (klik untuk isi URL)</label>
+    <div class="endpoint-list">
+      <div class="ep" onclick="fillExample('GET', 'health.php', '')">GET health.php — cek koneksi</div>
+      <div class="ep" onclick="fillExample('POST', 'login.php', '{"email":"andi@example.com","password":"demo123"}')">POST login.php — login Sales</div>
+      <div class="ep" onclick="fillExample('GET', 'toko.php', '')">GET toko.php — daftar toko</div>
+      <div class="ep" onclick="fillExample('POST', 'absen.php', '{"action":"checkin","id_toko":1,"latitude_checkin":-7.2854,"longitude_checkin":112.7398}')">POST absen.php — check-in</div>
+      <div class="ep" onclick="fillExample('POST', 'absen.php', '{"action":"checkout","id_kunjungan":1,"latitude_checkout":-7.2853,"longitude_checkout":112.7399}')">POST absen.php — check-out</div>
+      <div class="ep" onclick="fillExample('GET', 'kunjungan.php', '')">GET kunjungan.php — riwayat absen</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const baseDefault = 'https://jejaksales.site.je';
+
+function setUrl(path){
+  document.getElementById('url').value = baseDefault + '/' + path;
+  document.getElementById('method').value = path === 'login.php' || path === 'absen.php' || path === 'register.php' || path === 'logout.php' ? 'POST' : 'GET';
+}
+
+function fillExample(method, url, body){
+  document.getElementById('method').value = method;
+  document.getElementById('url').value = baseDefault + '/' + url;
+  document.getElementById('body').value = body;
+}
+
+async function sendRequest(){
+  const url = document.getElementById('url').value.trim();
+  const method = document.getElementById('method').value;
+  const token = document.getElementById('token').value.trim();
+  const bodyRaw = document.getElementById('body').value.trim();
+
+  const respEl = document.getElementById('response');
+  const statusEl = document.getElementById('statusText');
+  const badgeEl = document.getElementById('statusBadge');
+  const timeEl = document.getElementById('timeText');
+
+  respEl.textContent = 'Mengirim request...';
+  statusEl.textContent = '-';
+  badgeEl.textContent = '⏳';
+  badgeEl.className = 'warn';
+  timeEl.textContent = '-';
+
+  const start = performance.now();
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+
+  const init = { method, headers };
+  if (method !== 'GET' && method !== 'HEAD' && bodyRaw !== '') {
+    try { JSON.parse(bodyRaw); init.body = bodyRaw; } catch(e) {
+      respEl.textContent = 'Body bukan JSON valid: ' + e.message;
+      badgeEl.textContent = '❌';
+      badgeEl.className = 'err';
+      return;
+    }
+  }
+
+  try {
+    const res = await fetch(url, init);
+    const text = await res.text();
+    const ms = Math.round(performance.now() - start);
+
+    statusEl.textContent = res.status + ' ' + res.statusText;
+    badgeEl.textContent = res.ok ? '✅ Sukses' : '❌ Gagal';
+    badgeEl.className = res.ok ? 'ok' : 'err';
+    timeEl.textContent = ms + ' ms';
+
+    let pretty = text;
+    try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch(e) {}
+    respEl.textContent = pretty;
+  } catch (err) {
+    respEl.textContent = 'Gagal terhubung: ' + err.message;
+    statusEl.textContent = '-';
+    badgeEl.textContent = '🔌 Error';
+    badgeEl.className = 'err';
+    timeEl.textContent = '-';
+  }
+}
+
+function clearResponse(){
+  document.getElementById('response').textContent = 'Belum ada request dikirim.';
+  document.getElementById('statusText').textContent = '-';
+  document.getElementById('statusBadge').textContent = '-';
+  document.getElementById('statusBadge').className = 'warn';
+  document.getElementById('timeText').textContent = '-';
+}
+
+function copyResponse(){
+  const text = document.getElementById('response').textContent;
+  navigator.clipboard.writeText(text).then(() => alert('Disalin ke clipboard'));
+}
+</script>
+
+</body>
+</html>

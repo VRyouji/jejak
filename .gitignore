@@ -18,3 +18,9 @@ reference_faces/*.png
 face_tokens.json
 # Model ONNX di folder mana pun (unduh manual, lihat README)
 *.onnx
+
+# Alat lokal (taste/agent), tidak perlu ikut repo
+.commandcode/
+
+# Arsip deploy duplikat dari backend/api/
+backend/api-siap-upload.zip
