@@ -1,0 +1,11 @@
+# Teruskan header Authorization ke PHP.
+# Sebagian server Apache membuang header ini, yang membuat login
+# berhasil tetapi endpoint lain selalu 401.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
+# Jangan tampilkan daftar file di folder ini.
+Options -Indexes

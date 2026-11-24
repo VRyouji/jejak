@@ -1,0 +1,6 @@
+Options -Indexes
+
+# Folder ini hanya untuk gambar bukti. Jangan pernah menjalankan skrip di sini.
+<FilesMatch "\.(php|phtml|phar|cgi|pl|py|sh)$">
+    Require all denied
+</FilesMatch>

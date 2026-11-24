@@ -1,0 +1,175 @@
+### Contoh request untuk VS Code "REST Client" / Postman
+### Ganti @base dengan domain InfinityFree kamu.
+### Di Postman, buat request manual dengan URL & body yang sama.
+
+@base = https://GANTI-DOMAIN-KAMU.rf.gd/api
+@token = tempel-token-hasil-login-di-sini
+@tokenHr = tempel-token-login-hr-di-sini
+
+### 1. Cek koneksi backend + database (tanpa token)
+GET {{base}}/health.php
+
+### 2. Info API
+GET {{base}}/
+
+### 3. Daftar akun sales (opsional, kalau belum punya user)
+POST {{base}}/register.php
+Content-Type: application/json
+
+{
+  "nama": "Andi Pratama",
+  "email": "andi@example.com",
+  "password": "rahasia123",
+  "nomor_sales": "SLS-014",
+  "nomor_telepon": "081234567890"
+}
+
+### 4. Login -> salin data.token ke @token
+### "email" boleh diisi email, nama lengkap, atau bagian sebelum @.
+POST {{base}}/login.php
+Content-Type: application/json
+
+{
+  "email": "andi@example.com",
+  "password": "rahasia123"
+}
+
+### 5. Daftar toko
+GET {{base}}/toko.php
+Authorization: Bearer {{token}}
+
+### 6. Unggah foto bukti (ganti <BASE64_FOTO> dengan isi file gambar)
+### Response: { "file": "uploads/kunjungan_1_....jpg", "url": "..." }
+POST {{base}}/upload.php
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "data": "<BASE64_FOTO>"
+}
+
+### 7. Check-in (foto_bukti = nilai "file" dari response upload)
+POST {{base}}/absen.php
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "checkin",
+  "id_toko": 1,
+  "latitude_checkin": -7.2854,
+  "longitude_checkin": 112.7398,
+  "foto_bukti": "uploads/kunjungan_1_20261122_081500_ab12cd34.jpg",
+  "skor_wajah": 0.97,
+  "tujuan_kunjungan": "Restock display",
+  "catatan": "Rak depan"
+}
+
+### 8. Check-out (ganti id_kunjungan)
+POST {{base}}/absen.php
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "action": "checkout",
+  "id_kunjungan": 1,
+  "latitude_checkout": -7.2853,
+  "longitude_checkout": 112.7399
+}
+
+### 9. Riwayat kunjungan hari ini
+GET {{base}}/kunjungan.php?tanggal=2026-11-22
+Authorization: Bearer {{token}}
+
+### 10. Ajukan izin / cuti
+POST {{base}}/permohonan.php
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "jenis": "Cuti",
+  "tanggal_mulai": "2026-11-25",
+  "tanggal_selesai": "2026-11-26",
+  "alasan": "Acara keluarga",
+  "lampiran": "surat_izin.pdf"
+}
+
+### 11. Laporan HR (butuh akun role HR)
+GET {{base}}/laporan.php?jenis=kunjungan&periode=2026-11
+Authorization: Bearer {{tokenHr}}
+
+### 12. Logout
+POST {{base}}/logout.php
+Authorization: Bearer {{token}}
+
+/* ============================================================
+ * Endpoint khusus HR
+ * ============================================================ */
+
+### 13. Login HR -> salin data.token ke @tokenHr
+POST {{base}}/login.php
+Content-Type: application/json
+
+{
+  "email": "hr@example.com",
+  "password": "hr123456"
+}
+
+### 14. Daftar sales (HR)
+GET {{base}}/sales.php
+Authorization: Bearer {{tokenHr}}
+
+### 15. Tambah akun sales (HR)
+POST {{base}}/sales.php
+Content-Type: application/json
+Authorization: Bearer {{tokenHr}}
+
+{
+  "nama": "Siti Aminah",
+  "email": "siti@example.com",
+  "password": "rahasia123",
+  "nomor_sales": "SLS-025",
+  "nomor_telepon": "081234567899",
+  "wilayah": "Surabaya Timur"
+}
+
+### 16. Tambah toko (HR)
+POST {{base}}/toko.php
+Content-Type: application/json
+Authorization: Bearer {{tokenHr}}
+
+{
+  "action": "create",
+  "kode_toko": "TK-090",
+  "nama_toko": "Toko Makmur Jaya",
+  "alamat": "Jl. Raya Darmo 10, Surabaya",
+  "pemilik": "Budi",
+  "telepon": "0311234567",
+  "latitude": -7.2891,
+  "longitude": 112.7398,
+  "radius": 100
+}
+
+### 17. Setujui permohonan (HR)
+POST {{base}}/permohonan.php
+Content-Type: application/json
+Authorization: Bearer {{tokenHr}}
+
+{
+  "action": "approve",
+  "id_permohonan": 1,
+  "catatan": "Disetujui oleh HR."
+}
+
+### 18. Rekap gaji terhitung (HR)
+GET {{base}}/penggajian.php?periode=2026-11
+Authorization: Bearer {{tokenHr}}
+
+### 19. Proses & simpan rekap gaji (HR)
+POST {{base}}/penggajian.php
+Content-Type: application/json
+Authorization: Bearer {{tokenHr}}
+
+{
+  "action": "process",
+  "periode": "2026-11"
+}
