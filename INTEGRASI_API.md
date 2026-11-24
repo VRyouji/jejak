@@ -62,18 +62,18 @@ https://DOMAIN-KAMU/health.php       -> file ada di htdocs (root)
 ```
 
 Base URL yang benar adalah folder yang berisi `login.php` dan `health.php`.
-Contoh untuk deployment saat ini (file di root `htdocs`):
+Contoh kalau file ditaruh di root `htdocs`:
 
 ```
-https://jejaksales.site.je/health.php
-https://jejaksales.site.je/login.php
+https://DOMAIN-KAMU/health.php
+https://DOMAIN-KAMU/login.php
 ```
 
-`DOMAIN-KAMU` adalah domain yang diberikan InfinityFree, contoh:
+`DOMAIN-KAMU` adalah domain yang diberikan hosting, contoh:
 
 ```
-https://jejaksales.rf.gd/api/health.php
-https://jejaksales.infinityfreeapp.com/api/health.php
+https://domainmu.rf.gd/api/health.php
+https://domainmu.infinityfreeapp.com/api/health.php
 ```
 
 ### Cara menemukan domain kamu
@@ -100,10 +100,8 @@ https://jejaksales.infinityfreeapp.com/api/health.php
    - Upload `backend/database/01_schema.sql` → **Go**
    - Pastikan 11 tabel `tbl_*` muncul (termasuk `tbl_api_token`)
    - Opsional: upload juga `backend/database/03_seed_demo.sql` untuk mengisi
-     toko contoh dan 3 akun demo:
-     - Sales: **andi@example.com** / **demo123**
-     - Sales: **sales@example.com** / **sales123**
-     - HR: **hr@example.com** / **hr123456**
+     toko contoh dan akun demo. **Ganti password akun demo** sebelum dipakai
+     di server publik.
    - **Wajib kalau login ditolak:** upload `backend/database/05_akun_login.sql`.
      File ini memperbarui password akun demo walaupun emailnya sudah ada
      (seed biasa tidak mengubah password lama).
@@ -116,10 +114,10 @@ https://jejaksales.infinityfreeapp.com/api/health.php
 
 4. **Edit `config.php`**
    ```php
-   'host'     => 'sql309.infinityfree.com',
-   'database' => 'if0_38123456_absensi_sales',
-   'username' => 'if0_38123456',
-   'password' => 'password_database_kamu',
+   'host'     => 'sqlxxx.infinityfree.com',
+   'database' => 'if0_xxxxxxx_absensi_sales',
+   'username' => 'if0_xxxxxxx',
+   'password' => 'GANTI_PASSWORD_DATABASE',
    ```
 
 5. **Aktifkan SSL (disarankan)**
@@ -233,7 +231,7 @@ ter-upload, bukan masalah jaringan.
 Buka `src/AbsensiSales.Core/Api/ApiConfig.cs`, ganti satu baris:
 
 ```csharp
-public const string DefaultBaseUrl = "https://jejaksales.site.je";
+public const string DefaultBaseUrl = "https://GANTI-DOMAIN";
 ```
 
 Base URL = folder tempat `login.php` berada, tanpa garis miring di akhir:
@@ -259,7 +257,7 @@ public partial class ContohViewModel : ObservableObject
     [RelayCommand]
     private async Task LoginAsync()
     {
-        var hasil = await _api.LoginAsync("andi@example.com", "rahasia123");
+        var hasil = await _api.LoginAsync("email@contoh.com", "password");
 
         if (!hasil.Sukses)
         {
@@ -419,12 +417,8 @@ dari backend MySQL.
 
 ### 10a. Login HR
 
-Gunakan akun seed dari `03_seed_demo.sql`:
-
-```
-Email    : hr@example.com
-Password : hr123456
-```
+Gunakan akun HR yang sudah dibuat di database (hasil `03_seed_demo.sql` atau
+akun buatan sendiri). Isi kredensial sesuai database masing-masing.
 
 Login mengirim `POST login.php`. Kalau berhasil, token disimpan di
 `ApiService` dan identitas HR (nama, email, role) disimpan di
@@ -576,8 +570,8 @@ sidang/demo: tanpa model, verifikasi tidak benar-benar membandingkan wajah.
 - [ ] `https://DOMAIN/api/health.php` menampilkan `success: true`
 - [ ] `ApiConfig.cs` diisi `https://DOMAIN/api`
 - [ ] Tombol **Tes Koneksi Backend** di aplikasi Mobile menampilkan "Terhubung"
-- [ ] Login Mobile dengan `andi@example.com` / `demo123` berhasil
-- [ ] Login HR dengan `hr@example.com` / `hr123456` berhasil
+- [ ] Login Mobile dengan akun sales yang dibuat berhasil
+- [ ] Login HR dengan akun HR yang dibuat berhasil
 - [ ] Daftar toko, laporan, dan status izin Mobile berisi data dari database
 - [ ] Check-in Mobile menghasilkan baris baru di `tbl_kunjungan` dan file di `uploads/`
 - [ ] Setiap halaman HR menampilkan data nyata (bukan data contoh)

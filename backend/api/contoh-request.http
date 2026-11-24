@@ -110,8 +110,8 @@ POST {{base}}/login.php
 Content-Type: application/json
 
 {
-  "email": "hr@example.com",
-  "password": "hr123456"
+  "email": "email-hr@contoh.com",
+  "password": "GANTI_PASSWORD_HR"
 }
 
 ### 14. Daftar sales (HR)

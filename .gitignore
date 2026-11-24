@@ -22,5 +22,9 @@ face_tokens.json
 # Alat lokal (taste/agent), tidak perlu ikut repo
 .commandcode/
 
+# Catatan pribadi: kredensial, domain deployment, akun demo (jangan di-commit)
+README.local.md
+*.local.md
+
 # Arsip deploy duplikat dari backend/api/
 backend/api-siap-upload.zip
