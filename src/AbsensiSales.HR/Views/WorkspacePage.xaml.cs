@@ -39,7 +39,7 @@ public partial class WorkspacePage : ContentPage
         }
 
         var nama = string.IsNullOrWhiteSpace(_session.NamaPengguna)
-            ? "Admin HRD"
+            ? "-"
             : _session.NamaPengguna;
         LabelNamaPengguna.Text = nama;
         LabelNamaAkun.Text = nama;

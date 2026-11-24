@@ -16,9 +16,7 @@
 
                 <!-- Logo -->
                 <HorizontalStackLayout Spacing="10" VerticalOptions="Start">
-                    <controls:SolidCard Tone="Navy" Padding="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 13">
-                        <Label Text="JS" TextColor="{StaticResource White}" FontFamily="OpenSansSemibold" FontSize="15" HorizontalOptions="Center" VerticalOptions="Center" />
-                    </controls:SolidCard>
+                    <Image Source="logo_jejak.png" WidthRequest="40" HeightRequest="40" Aspect="AspectFit" />
                     <VerticalStackLayout Spacing="0" VerticalOptions="Center">
                         <Label Text="Jejak Sales" FontSize="17" FontFamily="OpenSansSemibold" />
                         <Label Text="Absensi kunjungan sales" FontSize="10" TextColor="{StaticResource TextSecondary}" />
@@ -48,9 +46,9 @@
                             </Grid>
                         </controls:SolidCard>
 
-                        <Label Text="Username" FontFamily="OpenSansSemibold" FontSize="12" Margin="0,0,0,6" />
+                        <Label Text="Email / username" FontFamily="OpenSansSemibold" FontSize="12" Margin="0,0,0,6" />
                         <controls:SolidCard Tone="Yellow" Padding="12,0" Margin="0,0,0,14" StrokeShape="RoundRectangle 14">
-                            <Entry Text="{Binding Username}" Placeholder="username" AutomationId="EntryUsername" />
+                            <Entry Text="{Binding Username}" Placeholder="email atau username" Keyboard="Email" AutomationId="EntryUsername" />
                         </controls:SolidCard>
 
                         <Label Text="Password" FontFamily="OpenSansSemibold" FontSize="12" Margin="0,0,0,6" />
@@ -101,11 +99,11 @@
                     </VerticalStackLayout>
                 </controls:SolidCard>
 
-                <!-- Info akun demo -->
+                <!-- Info akun sales -->
                 <controls:SolidCard Tone="Navy" Padding="14" Margin="0,16,0,0">
                     <VerticalStackLayout Spacing="4">
                         <Label Text="Akun untuk sales" TextColor="{StaticResource White}" FontFamily="OpenSansSemibold" FontSize="12" />
-                        <Label Text="Demo: username andi.pratama / password demo123. Akses Admin HRD tersedia di aplikasi desktop." TextColor="{StaticResource White}" FontSize="11" />
+                        <Label Text="Akun sales terdaftar di backend. Akses Admin HRD tersedia di aplikasi desktop." TextColor="{StaticResource White}" FontSize="11" />
                     </VerticalStackLayout>
                 </controls:SolidCard>
 

@@ -17,9 +17,7 @@
 
                     <!-- Logo -->
                     <HorizontalStackLayout Spacing="10" Margin="8,0,0,16">
-                        <Border BackgroundColor="{StaticResource PrimaryBright}" StrokeThickness="0" StrokeShape="RoundRectangle 8" WidthRequest="26" HeightRequest="26">
-                            <Label Text="JS" TextColor="{StaticResource OnPrimary}" FontSize="13" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
+                        <Image Source="logo_jejak.png" WidthRequest="26" HeightRequest="26" Aspect="AspectFit" VerticalOptions="Center" />
                         <Label Text="Jejak Sales" TextColor="{StaticResource TextPrimary}" FontSize="17" FontFamily="OpenSansSemibold" VerticalOptions="Center" />
                     </HorizontalStackLayout>
 
@@ -92,7 +90,7 @@
                     <Border BackgroundColor="{StaticResource NavySoft}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12" Margin="0,14,0,4">
                         <VerticalStackLayout Spacing="2">
                             <Label Text="AKUN HR" TextColor="{StaticResource TextSecondary}" FontSize="10" FontFamily="OpenSansSemibold" />
-                            <Label x:Name="LabelNamaAkun" Text="Admin HRD" TextColor="{StaticResource TextPrimary}" FontFamily="OpenSansSemibold" FontSize="13" />
+                            <Label x:Name="LabelNamaAkun" Text="-" TextColor="{StaticResource TextPrimary}" FontFamily="OpenSansSemibold" FontSize="13" />
                             <Label x:Name="LabelEmailAkun" Text="-" TextColor="{StaticResource TextSecondary}" FontSize="11" />
                         </VerticalStackLayout>
                     </Border>
@@ -121,7 +119,7 @@
                     <Label Grid.Column="0" x:Name="LabelBreadcrumb" Text="Operasional / Pemantauan absensi" TextColor="{StaticResource TextSecondary}" FontSize="13" VerticalOptions="Center" />
                     <HorizontalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="Center">
                         <Label Text="ADMIN HR" Style="{StaticResource BadgeInfo}" />
-                        <Label x:Name="LabelNamaPengguna" Text="Admin HRD" TextColor="{StaticResource TextPrimary}" FontSize="13" VerticalOptions="Center" />
+                        <Label x:Name="LabelNamaPengguna" Text="-" TextColor="{StaticResource TextPrimary}" FontSize="13" VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Grid>
             </controls:FloatingCard>

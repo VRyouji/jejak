@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using AbsensiSales.Core.Api;
 using AbsensiSales.Core.Models;
 using AbsensiSales.Core.Repositories;
 using AbsensiSales.Mobile.Services;
@@ -9,19 +10,19 @@ namespace AbsensiSales.Mobile.ViewModels;
 
 public partial class PengisianTokoViewModel : ObservableObject
 {
-    private readonly TokoRepository _tokoRepo;
+    private readonly ApiService _api;
     private readonly GpsService _gps;
     private readonly AbsensiFlowState _flow;
     private readonly NotificationService _notif;
     private bool _sudahNotifAbsensi;
 
     public PengisianTokoViewModel(
-        TokoRepository tokoRepo,
+        ApiService api,
         GpsService gps,
         AbsensiFlowState flow,
         NotificationService notif)
     {
-        _tokoRepo = tokoRepo;
+        _api = api;
         _gps = gps;
         _flow = flow;
         _notif = notif;
@@ -81,19 +82,43 @@ public partial class PengisianTokoViewModel : ObservableObject
             await _notif.ShowSuccessAsync($"Absensi pertama tercatat pukul {WaktuAbsensiAwal} WIB.");
         }
 
-        if (DaftarToko.Count == 0)
-        {
-            SedangMemuat = true;
-            var toko = await _tokoRepo.GetAllAsync();
-            foreach (var t in toko)
-                DaftarToko.Add(t);
-            SedangMemuat = false;
-        }
+        await MuatTokoAsync();
 
         if (TokoTerpilih is null && DaftarToko.Count > 0)
             TokoTerpilih = DaftarToko[0];
 
         await PerbaruiBuktiAsync();
+    }
+
+    private async Task MuatTokoAsync()
+    {
+        SedangMemuat = true;
+        try
+        {
+            var hasil = await _api.GetTokoAsync();
+            if (!hasil.Sukses)
+            {
+                await _notif.ShowErrorAsync(hasil.Pesan);
+                return;
+            }
+
+            var idTerpilih = TokoTerpilih?.Id ?? 0;
+
+            DaftarToko.Clear();
+            foreach (var toko in hasil.Data ?? new List<TokoDto>())
+            {
+                DaftarToko.Add(ApiMapper.KeToko(toko));
+            }
+
+            if (idTerpilih > 0)
+            {
+                TokoTerpilih = DaftarToko.FirstOrDefault(t => t.Id == idTerpilih);
+            }
+        }
+        finally
+        {
+            SedangMemuat = false;
+        }
     }
 
     partial void OnTokoTerpilihChanged(Toko? value)
@@ -111,13 +136,13 @@ public partial class PengisianTokoViewModel : ObservableObject
             return;
         }
 
-        // Pada mockup Windows, posisi disimulasikan dekat lokasi toko
-        var lokasi = await _gps.GetLokasiAsync(TokoTerpilih.Latitude, TokoTerpilih.Longitude);
+        var lokasi = await _gps.GetLokasiAsync();
         if (lokasi is null)
         {
             DalamRadius = false;
             LabelRadius = "GPS tidak siap";
-            InfoJarak = "Lokasi perangkat belum tersedia.";
+            InfoJarak = "Lokasi perangkat belum tersedia. Aktifkan izin lokasi.";
+            KoordinatGps = "-";
             return;
         }
 
@@ -133,8 +158,10 @@ public partial class PengisianTokoViewModel : ObservableObject
 
         DalamRadius = _flow.DalamRadius;
         LabelRadius = DalamRadius ? "Dalam radius" : "Di luar radius";
-        KoordinatGps = $"{lokasi.Latitude:F4}, {lokasi.Longitude:F4} - +/-{lokasi.AkurasiMeter:F0} m";
-        InfoJarak = $"Jarak ke toko {Math.Round(jarak)} meter dari radius {TokoTerpilih.RadiusMeter:F0} meter.";
+        KoordinatGps =
+            $"{lokasi.Latitude:F4}, {lokasi.Longitude:F4} - +/-{lokasi.AkurasiMeter:F0} m";
+        InfoJarak =
+            $"Jarak ke toko {Math.Round(jarak)} meter dari radius {TokoTerpilih.RadiusMeter:F0} meter.";
     }
 
     [RelayCommand]

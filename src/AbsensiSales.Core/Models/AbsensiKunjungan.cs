@@ -1,3 +1,4 @@
+using AbsensiSales.Core.Services;
 using SQLite;
 
 namespace AbsensiSales.Core.Models;
@@ -32,7 +33,7 @@ public class AbsensiKunjungan
         Enum.TryParse<StatusKunjungan>(Status, out var value) ? value : StatusKunjungan.Draf;
 
     [Ignore]
-    public bool WajahTerverifikasi => SkorWajah >= 0.363;
+    public bool WajahTerverifikasi => SkorWajah >= FaceScore.Threshold;
 
     [Ignore]
     public string StatusLabel => StatusEnum switch

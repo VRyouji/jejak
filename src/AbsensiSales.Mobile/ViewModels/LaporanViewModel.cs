@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using AbsensiSales.Core.Models;
-using AbsensiSales.Core.Repositories;
+using AbsensiSales.Core.Api;
 using AbsensiSales.Core.Services;
+using AbsensiSales.Mobile.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -12,17 +12,17 @@ public partial class LaporanViewModel : ObservableObject
     private const int TargetKunjunganHarian = 8;
 
     private readonly SessionService _session;
-    private readonly KunjunganRepository _kunjunganRepo;
-    private readonly TokoRepository _tokoRepo;
+    private readonly ApiService _api;
+    private readonly NotificationService _notif;
 
     public LaporanViewModel(
         SessionService session,
-        KunjunganRepository kunjunganRepo,
-        TokoRepository tokoRepo)
+        ApiService api,
+        NotificationService notif)
     {
         _session = session;
-        _kunjunganRepo = kunjunganRepo;
-        _tokoRepo = tokoRepo;
+        _api = api;
+        _notif = notif;
     }
 
     public ObservableCollection<LaporanItemViewModel> DaftarKunjungan { get; } = new();
@@ -54,18 +54,37 @@ public partial class LaporanViewModel : ObservableObject
             return;
         }
 
-        JudulTanggal = DateTime.Now.ToString("dd MMMM yyyy");
-        InfoSales = $"{sales.Nama} - {sales.Nip} / {sales.Wilayah}";
+        JudulTanggal = ApiMapper.Tanggal(DateTime.Now);
+        InfoSales = string.IsNullOrWhiteSpace(sales.Wilayah)
+            ? $"{sales.Nama} - {sales.Nip}"
+            : $"{sales.Nama} - {sales.Nip} / {sales.Wilayah}";
 
-        var kunjungan = await _kunjunganRepo.GetBySalesAsync(sales.Id, _session.TanggalHariIni);
+        var hasil = await _api.GetKunjunganAsync(tanggal: _session.TanggalHariIni);
+        if (!hasil.Sukses)
+        {
+            JumlahKunjungan = 0;
+            AbsensiPertama = "-";
+            StatusAbsensiPertama = "Belum tercatat";
+            StatusTargetHarian = "Data kunjungan belum dapat dimuat.";
+            DaftarKunjungan.Clear();
+            await _notif.ShowErrorAsync(hasil.Pesan);
+            return;
+        }
 
-        JumlahKunjungan = kunjungan.Count(k => k.StatusEnum == StatusKunjungan.Tersimpan);
+        var kunjungan = (hasil.Data ?? new List<KunjunganDto>())
+            .OrderByDescending(k => ApiMapper.Waktu(k.WaktuCheckin))
+            .ToList();
 
-        var pertama = kunjungan
-            .Where(k => k.Status == nameof(StatusKunjungan.Tersimpan))
-            .OrderBy(k => k.WaktuCatat)
+        var tercatat = kunjungan
+            .Where(k => !string.Equals(k.StatusVerifikasi, "Invalid", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        JumlahKunjungan = tercatat.Count;
+
+        var pertama = tercatat
+            .OrderBy(k => ApiMapper.Waktu(k.WaktuCheckin))
             .FirstOrDefault();
-        AbsensiPertama = pertama?.WaktuAbsensiAwal ?? "-";
+        AbsensiPertama = pertama is null ? "-" : ApiMapper.Jam(pertama.WaktuCheckin);
         StatusAbsensiPertama = pertama is null ? "Belum tercatat" : "Tercatat - WIB";
 
         StatusTargetHarian = JumlahKunjungan >= TargetKunjunganHarian
@@ -75,19 +94,36 @@ public partial class LaporanViewModel : ObservableObject
         DaftarKunjungan.Clear();
         foreach (var k in kunjungan)
         {
-            var toko = await _tokoRepo.GetByIdAsync(k.TokoId);
             DaftarKunjungan.Add(new LaporanItemViewModel
             {
-                NamaToko = toko?.NamaToko ?? "Toko",
-                KodeToko = toko?.KodeToko ?? "-",
-                Waktu = k.WaktuCatat,
-                Alamat = toko?.Alamat ?? string.Empty,
-                Status = k.StatusLabel,
-                CheckGps = k.StatusEnum == StatusKunjungan.Draf ? "- GPS belum ada" : "+ GPS sesuai",
-                CheckWajah = k.SkorWajah > 0 ? "+ Wajah cocok" : "- Wajah belum ada",
-                CheckFoto = k.StatusEnum == StatusKunjungan.Draf ? "- Foto belum ada" : "+ Foto lengkap"
+                NamaToko = string.IsNullOrWhiteSpace(k.NamaToko) ? "Toko" : k.NamaToko!,
+                KodeToko = string.IsNullOrWhiteSpace(k.KodeToko)
+                    ? $"TK-{k.IdToko}"
+                    : k.KodeToko!,
+                Waktu = ApiMapper.Jam(k.WaktuCheckin),
+                Alamat = k.AlamatToko ?? string.Empty,
+                Status = ApiMapper.StatusKunjungan(k.StatusVerifikasi),
+                CheckGps = FormatGps(k),
+                CheckWajah = (k.SkorWajah ?? 0) > 0
+                    ? $"+ Wajah {k.SkorWajah!.Value:F2}"
+                    : "- Wajah belum ada",
+                CheckFoto = string.IsNullOrWhiteSpace(k.FotoBukti)
+                    ? "- Foto belum ada"
+                    : "+ Foto lengkap"
             });
         }
+    }
+
+    private static string FormatGps(KunjunganDto kunjungan)
+    {
+        if (string.Equals(kunjungan.StatusVerifikasi, "Invalid", StringComparison.OrdinalIgnoreCase))
+        {
+            return "- Di luar radius";
+        }
+
+        return kunjungan.JarakMeter.HasValue
+            ? $"+ GPS {kunjungan.JarakMeter.Value:F0} m"
+            : "- GPS tidak tercatat";
     }
 
     [RelayCommand]

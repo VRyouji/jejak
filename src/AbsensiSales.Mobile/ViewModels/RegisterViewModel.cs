@@ -1,5 +1,4 @@
-using AbsensiSales.Core.Models;
-using AbsensiSales.Core.Repositories;
+using AbsensiSales.Core.Api;
 using AbsensiSales.Mobile.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -8,12 +7,12 @@ namespace AbsensiSales.Mobile.ViewModels;
 
 public partial class RegisterViewModel : ObservableObject
 {
-    private readonly SalesRepository _salesRepo;
+    private readonly ApiService _api;
     private readonly NotificationService _notif;
 
-    public RegisterViewModel(SalesRepository salesRepo, NotificationService notif)
+    public RegisterViewModel(ApiService api, NotificationService notif)
     {
-        _salesRepo = salesRepo;
+        _api = api;
         _notif = notif;
     }
 
@@ -29,9 +28,17 @@ public partial class RegisterViewModel : ObservableObject
     [ObservableProperty]
     private string _password = string.Empty;
 
+    [ObservableProperty]
+    private bool _sedangMemproses;
+
     [RelayCommand]
     private async Task DaftarAsync()
     {
+        if (SedangMemproses)
+        {
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(Nama) || string.IsNullOrWhiteSpace(Nip)
             || string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
         {
@@ -39,23 +46,38 @@ public partial class RegisterViewModel : ObservableObject
             return;
         }
 
-        if (await _salesRepo.UsernameExistsAsync(Username.Trim()))
+        if (Password.Trim().Length < 6)
         {
-            await _notif.ShowErrorAsync("Username sudah digunakan.");
+            await _notif.ShowErrorAsync("Password minimal 6 karakter.");
             return;
         }
 
-        await _salesRepo.RegisterAsync(new Sales
+        SedangMemproses = true;
+        try
         {
-            Nama = Nama.Trim(),
-            Nip = Nip.Trim(),
-            Username = Username.Trim(),
-            Password = Password,
-            Wilayah = "Surabaya Pusat"
-        });
+            var hasil = await _api.RegisterAsync(new RegisterRequest
+            {
+                Nama = Nama.Trim(),
+                NomorSales = Nip.Trim(),
+                Username = Username.Trim(),
+                Password = Password
+            });
 
-        await Shell.Current.GoToAsync("..");
-        await _notif.ShowSuccessAsync("Akun sales terdaftar. Silakan masuk.");
+            if (!hasil.Sukses)
+            {
+                await _notif.ShowErrorAsync(hasil.Pesan);
+                return;
+            }
+
+            var email = hasil.Data?.Pengguna?.Email ?? Username.Trim();
+            await Shell.Current.GoToAsync("..");
+            await _notif.ShowSuccessAsync(
+                $"Akun sales terdaftar. Login dengan {email} atau nama lengkap Anda.");
+        }
+        finally
+        {
+            SedangMemproses = false;
+        }
     }
 
     [RelayCommand]

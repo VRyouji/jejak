@@ -21,9 +21,7 @@
                 <controls:BackButton Margin="0,0,0,16" />
 
                 <HorizontalStackLayout Spacing="10" Margin="0,0,0,22">
-                    <controls:SolidCard Tone="Navy" Padding="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 13">
-                        <Label Text="JS" TextColor="{StaticResource White}" FontFamily="OpenSansSemibold" FontSize="15" HorizontalOptions="Center" VerticalOptions="Center" />
-                    </controls:SolidCard>
+                    <Image Source="logo_jejak.png" WidthRequest="40" HeightRequest="40" Aspect="AspectFit" />
                     <VerticalStackLayout Spacing="0" VerticalOptions="Center">
                         <Label Text="Jejak Sales" FontSize="17" FontFamily="OpenSansSemibold" />
                         <Label Text="Pendaftaran sales baru" FontSize="10" TextColor="{StaticResource TextSecondary}" />

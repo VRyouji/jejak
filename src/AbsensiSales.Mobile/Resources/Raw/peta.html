@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Peta Lokasi</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body, #map { height: 100%; width: 100%; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  .info {
+    position: absolute; top: 10px; left: 10px; z-index: 1000;
+    background: rgba(255,255,255,0.9); padding: 8px 10px; border-radius: 10px;
+    font-size: 13px; line-height: 1.3; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    max-width: 240px;
+  }
+  .info b { color: #2b2319; }
+  .info .akurasi { color: #555; font-size: 11px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="info">
+  <b>Lokasi Anda</b><br>
+  {LAT}, {LON}<div class="akurasi">Akurasi +/-{AKURASI} m</div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  var map = L.map('map', { zoomControl: true }).setView([{LAT}, {LON}], {ZOOM});
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var marker = L.marker([{LAT}, {LON}]).addTo(map);
+  marker.bindPopup('<b>Lokasi perangkat</b><br>{LAT}, {LON}').openPopup();
+
+  if ({AKURASI} && {AKURASI} > 0) {
+    L.circle([{LAT}, {LON}], {
+      color: '#2b2319',
+      fillColor: '#2b2319',
+      fillOpacity: 0.12,
+      radius: {AKURASI}
+    }).addTo(map);
+  }
+</script>
+</body>
+</html>

@@ -14,6 +14,9 @@ public class Sales
     public string Wilayah { get; set; } = string.Empty;
     public string FotoReferensi { get; set; } = string.Empty;
 
+    /// <summary>Template wajah Base64 dari backend (tbl_sales.face_data).</summary>
+    public string FaceData { get; set; } = string.Empty;
+
     [Ignore]
     public string Inisial =>
         string.IsNullOrWhiteSpace(Nama)

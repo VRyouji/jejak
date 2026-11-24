@@ -69,6 +69,10 @@ public sealed class PenggunaDto
 
     [JsonPropertyName("role")]
     public string Role { get; set; } = string.Empty;
+
+    /// <summary>Wilayah kerja (opsional, butuh kolom tbl_pengguna.wilayah).</summary>
+    [JsonPropertyName("wilayah")]
+    public string? Wilayah { get; set; }
 }
 
 public sealed class SalesDto
@@ -241,6 +245,18 @@ public sealed class CheckOutRequest
     public double LongitudeCheckout { get; set; }
 }
 
+/* ============================================================
+ * upload.php — bukti foto kunjungan
+ * ============================================================ */
+public sealed class UploadFotoData
+{
+    [JsonPropertyName("file")]
+    public string File { get; set; } = string.Empty;
+
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = string.Empty;
+}
+
 public sealed class CheckInData
 {
     [JsonPropertyName("id_kunjungan")]
@@ -383,6 +399,9 @@ public sealed class PermohonanRequest
 
     [JsonPropertyName("alasan")]
     public string Alasan { get; set; } = string.Empty;
+
+    [JsonPropertyName("lampiran")]
+    public string? Lampiran { get; set; }
 }
 
 public sealed class PersetujuanPermohonanRequest
@@ -591,6 +610,43 @@ public sealed class SalesCreateRequest
 
     [JsonPropertyName("face_data")]
     public string? FaceData { get; set; }
+}
+
+public sealed class SalesUpdateRequest
+{
+    [JsonPropertyName("action")]
+    public string Action { get; set; } = "update";
+
+    [JsonPropertyName("id_sales")]
+    public int IdSales { get; set; }
+
+    [JsonPropertyName("nama")]
+    public string Nama { get; set; } = string.Empty;
+
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = string.Empty;
+
+    /// <summary>Kosongkan kalau password tidak ingin diubah.</summary>
+    [JsonPropertyName("password")]
+    public string? Password { get; set; }
+
+    [JsonPropertyName("nomor_sales")]
+    public string NomorSales { get; set; } = string.Empty;
+
+    [JsonPropertyName("nomor_telepon")]
+    public string NomorTelepon { get; set; } = string.Empty;
+
+    [JsonPropertyName("wilayah")]
+    public string? Wilayah { get; set; }
+}
+
+public sealed class SalesActionRequest
+{
+    [JsonPropertyName("action")]
+    public string Action { get; set; } = "delete";
+
+    [JsonPropertyName("id_sales")]
+    public int IdSales { get; set; }
 }
 
 /* ============================================================

@@ -74,17 +74,25 @@
                 <controls:FloatingCard Grid.Column="0" Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Bukti wajah" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Border BackgroundColor="{StaticResource Navy}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HeightRequest="140">
-                            <Label Text="WAJAH" FontSize="40" TextColor="{StaticResource TextOnNavy}" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border BackgroundColor="{StaticResource NavySoft}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HeightRequest="140">
+                            <VerticalStackLayout Spacing="6" VerticalOptions="Center" HorizontalOptions="Center">
+                                <Label Text="&#xe86c;" FontFamily="MaterialIcons" FontSize="34" TextColor="{StaticResource PrimaryDark}" HorizontalOptions="Center" />
+                                <Label Text="{Binding InfoWajah}" FontSize="13" TextColor="{StaticResource TextPrimary}" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
                         </Border>
-                        <Label Text="{Binding InfoWajah}" FontSize="12" TextColor="{StaticResource TextSecondary}" />
+                        <Label Text="Aplikasi hanya menyimpan skor verifikasi, bukan foto wajah." FontSize="11" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
                 </controls:FloatingCard>
                 <controls:FloatingCard Grid.Column="1" Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="Foto toko" FontSize="12" TextColor="{StaticResource TextSecondary}" />
-                        <Border BackgroundColor="{StaticResource Navy}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HeightRequest="140">
-                            <Label Text="TOKO" FontSize="40" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border BackgroundColor="{StaticResource NavySoft}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HeightRequest="140"
+                                IsVisible="{Binding AdaFoto}">
+                            <Image Source="{Binding FotoUrl}" Aspect="AspectFill" />
+                        </Border>
+                        <Border BackgroundColor="{StaticResource NavySoft}" StrokeThickness="0" StrokeShape="RoundRectangle 10" HeightRequest="140"
+                                IsVisible="{Binding TidakAdaFoto}">
+                            <Label Text="Foto belum tersedia" FontSize="13" TextColor="{StaticResource TextSecondary}" HorizontalOptions="Center" VerticalOptions="Center" />
                         </Border>
                         <Label Text="{Binding InfoFoto}" FontSize="12" TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>

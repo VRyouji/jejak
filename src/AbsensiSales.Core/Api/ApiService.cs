@@ -161,6 +161,15 @@ public sealed class ApiService : IDisposable
     public Task<ApiResult<TokoDto>> SimpanTokoAsync(TokoRequest permintaan, CancellationToken ct = default)
         => KirimAsync<TokoDto>(HttpMethod.Post, "toko.php", permintaan, butuhToken: true, ct);
 
+    /// <summary>Khusus HR: hapus toko beserta kunjungan yang tercatat di sana.</summary>
+    public Task<ApiResult<TokoDto>> HapusTokoAsync(int idToko, CancellationToken ct = default)
+        => KirimAsync<TokoDto>(
+            HttpMethod.Post,
+            "toko.php",
+            new TokoRequest { Action = "delete", IdToko = idToko },
+            butuhToken: true,
+            ct);
+
     /* ============================================================
      * SALES (khusus HR)
      * ============================================================ */
@@ -182,9 +191,36 @@ public sealed class ApiService : IDisposable
         CancellationToken ct = default)
         => KirimAsync<SalesAdminDto>(HttpMethod.Post, "sales.php", permintaan, butuhToken: true, ct);
 
+    /// <summary>Khusus HR: ubah data akun sales (password opsional).</summary>
+    public Task<ApiResult<SalesAdminDto>> UpdateSalesAsync(
+        SalesUpdateRequest permintaan,
+        CancellationToken ct = default)
+        => KirimAsync<SalesAdminDto>(HttpMethod.Post, "sales.php", permintaan, butuhToken: true, ct);
+
+    /// <summary>Khusus HR: hapus akun sales beserta riwayat terkait.</summary>
+    public Task<ApiResult<SalesAdminDto>> HapusSalesAsync(
+        int idSales,
+        CancellationToken ct = default)
+        => KirimAsync<SalesAdminDto>(
+            HttpMethod.Post,
+            "sales.php",
+            new SalesActionRequest { Action = "delete", IdSales = idSales },
+            butuhToken: true,
+            ct);
+
     /* ============================================================
      * ABSEN / KUNJUNGAN
      * ============================================================ */
+
+    /// <summary>
+    /// Unggah foto bukti kunjungan (Base64) dan kembalikan nama file yang
+    /// disimpan server. Nama file itulah yang dikirim pada check-in.
+    /// </summary>
+    public Task<ApiResult<UploadFotoData>> UploadFotoAsync(byte[] foto, CancellationToken ct = default)
+    {
+        var permintaan = new { data = Convert.ToBase64String(foto) };
+        return KirimAsync<UploadFotoData>(HttpMethod.Post, "upload.php", permintaan, butuhToken: true, ct);
+    }
 
     public Task<ApiResult<CheckInData>> CheckInAsync(CheckInRequest permintaan, CancellationToken ct = default)
         => KirimAsync<CheckInData>(HttpMethod.Post, "absen.php", permintaan, butuhToken: true, ct);

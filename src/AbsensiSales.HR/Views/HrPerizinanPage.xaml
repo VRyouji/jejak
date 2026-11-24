@@ -104,7 +104,6 @@
 
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                     <Label Text="{Binding NamaSales}" FontFamily="OpenSansSemibold" FontSize="16" />
-                                    <Label Text="{Binding Jabatan}" FontSize="12" TextColor="{StaticResource TextSecondary}" />
                                     <Label Text="{Binding Nip, StringFormat='NIP {0}'}" FontSize="11" TextColor="{StaticResource TextSecondary}" />
                                 </VerticalStackLayout>
 

@@ -33,7 +33,7 @@ public partial class FotoTokoViewModel : ObservableObject
             ? "Toko"
             : $"{_flow.TokoTerpilih.KodeToko} - {_flow.TokoTerpilih.NamaToko}";
 
-        FotoSiap = _flow.FotoBukti is not null;
+        FotoSiap = _flow.FotoBukti is { Length: > 0 };
         PerbaruiPratinjau();
     }
 
@@ -42,10 +42,8 @@ public partial class FotoTokoViewModel : ObservableObject
     {
         if (!MediaPicker.Default.IsCaptureSupported)
         {
-            // Perangkat tanpa kamera (mis. desktop Windows): foto placeholder
-            // agar alur demo tetap bisa dilanjutkan.
-            SimpanFotoPlaceholder();
-            await _notif.ShowInfoAsync("Kamera tidak tersedia di perangkat ini.");
+            await _notif.ShowErrorAsync(
+                "Kamera tidak tersedia di perangkat ini. Foto bukti wajib diambil dari kamera.");
             return;
         }
 
@@ -90,14 +88,6 @@ public partial class FotoTokoViewModel : ObservableObject
         PerbaruiPratinjau();
 
         await _notif.ShowSuccessAsync("Foto bukti kunjungan siap.");
-    }
-
-    private void SimpanFotoPlaceholder()
-    {
-        _flow.FotoBukti = Array.Empty<byte>();
-        _flow.WaktuFoto = DateTime.Now.ToString("HH:mm:ss");
-        FotoSiap = true;
-        PerbaruiPratinjau();
     }
 
     /// <summary>

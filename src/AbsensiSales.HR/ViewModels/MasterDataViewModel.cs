@@ -26,7 +26,7 @@ public partial class MasterDataViewModel : ObservableObject
     public bool IsTabSales => IsSalesSelected;
     public bool IsTabToko => IsTokoSelected;
 
-    public ObservableCollection<Sales> DaftarSales { get; } = new();
+    public ObservableCollection<SalesMasterItem> DaftarSales { get; } = new();
     public ObservableCollection<Toko> DaftarToko { get; } = new();
 
     [ObservableProperty]
@@ -59,6 +59,14 @@ public partial class MasterDataViewModel : ObservableObject
     private string _formSalesPassword = string.Empty;
 
     [ObservableProperty]
+    private string _formSalesJudul = "Tambah sales";
+
+    [ObservableProperty]
+    private string _formSalesPasswordHint = "Minimal 6 karakter";
+
+    private int? _editingSalesId;
+
+    [ObservableProperty]
     private string _formSalesTelepon = string.Empty;
 
     [ObservableProperty]
@@ -76,6 +84,11 @@ public partial class MasterDataViewModel : ObservableObject
     private bool _isFormTokoTerbuka;
 
     [ObservableProperty]
+    private string _formTokoJudul = "Tambah toko";
+
+    private int? _editingTokoId;
+
+    [ObservableProperty]
     private string _formTokoKode = string.Empty;
 
     [ObservableProperty]
@@ -91,10 +104,10 @@ public partial class MasterDataViewModel : ObservableObject
     private string _formTokoTelepon = string.Empty;
 
     [ObservableProperty]
-    private string _formTokoLatitude = "-7.2575";
+    private string _formTokoLatitude = string.Empty;
 
     [ObservableProperty]
-    private string _formTokoLongitude = "112.7521";
+    private string _formTokoLongitude = string.Empty;
 
     [ObservableProperty]
     private string _formTokoRadius = "100";
@@ -119,14 +132,7 @@ public partial class MasterDataViewModel : ObservableObject
         DaftarSales.Clear();
         foreach (var sales in hasilSales.Data ?? new List<SalesAdminDto>())
         {
-            DaftarSales.Add(new Sales
-            {
-                Id = sales.IdSales,
-                Nip = sales.NomorSales,
-                Nama = sales.Nama,
-                Username = sales.Email,
-                Wilayah = string.IsNullOrWhiteSpace(sales.Wilayah) ? "-" : sales.Wilayah!
-            });
+            DaftarSales.Add(SalesMasterItem.DariApi(sales));
         }
 
         DaftarToko.Clear();
@@ -162,12 +168,76 @@ public partial class MasterDataViewModel : ObservableObject
     private void TambahSales()
     {
         IsFormTokoTerbuka = false;
+        _editingSalesId = null;
+        FormSalesJudul = "Tambah sales";
+        FormSalesPasswordHint = "Minimal 6 karakter";
         ResetFormSales();
         IsFormSalesTerbuka = true;
     }
 
     [RelayCommand]
-    private void BatalSales() => IsFormSalesTerbuka = false;
+    private void UbahSales(SalesMasterItem? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        IsFormTokoTerbuka = false;
+        _editingSalesId = item.Id;
+        FormSalesJudul = $"Ubah sales - {item.Nama}";
+        FormSalesPasswordHint = "Kosongkan jika password tidak diubah.";
+        FormSalesNip = item.Nip == "-" ? string.Empty : item.Nip;
+        FormSalesNama = item.Nama;
+        FormSalesEmail = item.Email == "-" ? string.Empty : item.Email;
+        FormSalesPassword = string.Empty;
+        FormSalesTelepon = item.Telepon == "-" ? string.Empty : item.Telepon;
+        FormSalesWilayah = item.Wilayah == "-" ? string.Empty : item.Wilayah;
+        PesanErrorSales = string.Empty;
+        AdaErrorSales = false;
+        IsFormSalesTerbuka = true;
+    }
+
+    [RelayCommand]
+    private async Task HapusSalesAsync(SalesMasterItem? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        bool yakin = await Shell.Current.DisplayAlert(
+            "Hapus sales",
+            $"Hapus akun {item.Nama} ({item.Nip})? Riwayat kunjungan, permohonan, "
+            + "dan penggajian milik sales ini juga akan terhapus.",
+            "Hapus",
+            "Batal");
+
+        if (!yakin)
+        {
+            return;
+        }
+
+        var hasil = await _api.HapusSalesAsync(item.Id);
+        if (!hasil.Sukses)
+        {
+            await Shell.Current.DisplayAlert("Gagal menghapus", hasil.Pesan, "OK");
+            return;
+        }
+
+        await MuatAsync();
+        await Shell.Current.DisplayAlert(
+            "Sales dihapus",
+            $"Akun sales {item.Nama} berhasil dihapus.",
+            "OK");
+    }
+
+    [RelayCommand]
+    private void BatalSales()
+    {
+        _editingSalesId = null;
+        IsFormSalesTerbuka = false;
+    }
 
     [RelayCommand]
     private async Task SimpanSalesAsync()
@@ -175,6 +245,44 @@ public partial class MasterDataViewModel : ObservableObject
         if (!ValidasiFormSales(out var pesan))
         {
             TampilkanErrorSales(pesan);
+            return;
+        }
+
+        if (_editingSalesId is int idSales)
+        {
+            var hasilUbah = await _api.UpdateSalesAsync(new SalesUpdateRequest
+            {
+                Action = "update",
+                IdSales = idSales,
+                Nama = FormSalesNama.Trim(),
+                Email = FormSalesEmail.Trim(),
+                Password = string.IsNullOrWhiteSpace(FormSalesPassword)
+                    ? null
+                    : FormSalesPassword.Trim(),
+                NomorSales = FormSalesNip.Trim(),
+                NomorTelepon = FormSalesTelepon.Trim(),
+                Wilayah = string.IsNullOrWhiteSpace(FormSalesWilayah)
+                    ? null
+                    : FormSalesWilayah.Trim()
+            });
+
+            if (!hasilUbah.Sukses)
+            {
+                TampilkanErrorSales(hasilUbah.Pesan);
+                return;
+            }
+
+            var namaDiubah = hasilUbah.Data?.Nama ?? FormSalesNama.Trim();
+
+            IsFormSalesTerbuka = false;
+            _editingSalesId = null;
+            IsSalesSelected = true;
+            await MuatAsync();
+
+            await Shell.Current.DisplayAlert(
+                "Sales diperbarui",
+                $"Data sales {namaDiubah} berhasil diperbarui.",
+                "OK");
             return;
         }
 
@@ -212,12 +320,76 @@ public partial class MasterDataViewModel : ObservableObject
     private void TambahToko()
     {
         IsFormSalesTerbuka = false;
+        _editingTokoId = null;
+        FormTokoJudul = "Tambah toko";
         ResetFormToko();
         IsFormTokoTerbuka = true;
     }
 
     [RelayCommand]
-    private void BatalToko() => IsFormTokoTerbuka = false;
+    private void UbahToko(Toko? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        IsFormSalesTerbuka = false;
+        _editingTokoId = item.Id;
+        FormTokoJudul = $"Ubah toko - {item.NamaToko}";
+        FormTokoKode = item.KodeToko;
+        FormTokoNama = item.NamaToko;
+        FormTokoAlamat = item.Alamat == "-" ? string.Empty : item.Alamat;
+        FormTokoPemilik = item.Pemilik;
+        FormTokoTelepon = item.Telepon;
+        FormTokoLatitude = item.Latitude.ToString(CultureInfo.InvariantCulture);
+        FormTokoLongitude = item.Longitude.ToString(CultureInfo.InvariantCulture);
+        FormTokoRadius = item.RadiusMeter.ToString(CultureInfo.InvariantCulture);
+        PesanErrorToko = string.Empty;
+        AdaErrorToko = false;
+        IsFormTokoTerbuka = true;
+    }
+
+    [RelayCommand]
+    private async Task HapusTokoAsync(Toko? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        bool yakin = await Shell.Current.DisplayAlert(
+            "Hapus toko",
+            $"Hapus toko {item.NamaToko} ({item.KodeToko})? Kunjungan yang "
+            + "tercatat di toko ini juga akan terhapus.",
+            "Hapus",
+            "Batal");
+
+        if (!yakin)
+        {
+            return;
+        }
+
+        var hasil = await _api.HapusTokoAsync(item.Id);
+        if (!hasil.Sukses)
+        {
+            await Shell.Current.DisplayAlert("Gagal menghapus", hasil.Pesan, "OK");
+            return;
+        }
+
+        await MuatAsync();
+        await Shell.Current.DisplayAlert(
+            "Toko dihapus",
+            $"Toko {item.NamaToko} berhasil dihapus.",
+            "OK");
+    }
+
+    [RelayCommand]
+    private void BatalToko()
+    {
+        _editingTokoId = null;
+        IsFormTokoTerbuka = false;
+    }
 
     [RelayCommand]
     private async Task SimpanTokoAsync()
@@ -230,7 +402,8 @@ public partial class MasterDataViewModel : ObservableObject
 
         var hasil = await _api.SimpanTokoAsync(new TokoRequest
         {
-            Action = "create",
+            Action = _editingTokoId is null ? "create" : "update",
+            IdToko = _editingTokoId,
             KodeToko = string.IsNullOrWhiteSpace(FormTokoKode) ? null : FormTokoKode.Trim(),
             NamaToko = FormTokoNama.Trim(),
             Alamat = FormTokoAlamat.Trim(),
@@ -248,14 +421,18 @@ public partial class MasterDataViewModel : ObservableObject
         }
 
         var nama = hasil.Data?.NamaToko ?? FormTokoNama.Trim();
+        bool baru = _editingTokoId is null;
 
         IsFormTokoTerbuka = false;
+        _editingTokoId = null;
         IsSalesSelected = false;
         await MuatAsync();
 
         await Shell.Current.DisplayAlert(
-            "Toko ditambahkan",
-            $"Toko {nama} dengan radius {radius:F0} m berhasil ditambahkan.",
+            baru ? "Toko ditambahkan" : "Toko diperbarui",
+            baru
+                ? $"Toko {nama} dengan radius {radius:F0} m berhasil ditambahkan."
+                : $"Data toko {nama} berhasil diperbarui.",
             "OK");
     }
 
@@ -279,9 +456,17 @@ public partial class MasterDataViewModel : ObservableObject
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(FormSalesPassword) || FormSalesPassword.Trim().Length < 6)
+        bool passwordKosong = string.IsNullOrWhiteSpace(FormSalesPassword);
+
+        if (_editingSalesId is null && passwordKosong)
         {
             pesan = "Password wajib diisi minimal 6 karakter.";
+            return false;
+        }
+
+        if (!passwordKosong && FormSalesPassword.Trim().Length < 6)
+        {
+            pesan = "Password minimal 6 karakter.";
             return false;
         }
 
@@ -291,8 +476,9 @@ public partial class MasterDataViewModel : ObservableObject
             return false;
         }
 
-        if (DaftarSales.Any(s => string.Equals(
-                s.Nip.Trim(), FormSalesNip.Trim(), StringComparison.OrdinalIgnoreCase)))
+        if (DaftarSales.Any(s => s.Id != _editingSalesId
+                && string.Equals(
+                    s.Nip.Trim(), FormSalesNip.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
             pesan = "NIP tersebut sudah terdaftar.";
             return false;
@@ -325,8 +511,9 @@ public partial class MasterDataViewModel : ObservableObject
         }
 
         if (!string.IsNullOrWhiteSpace(FormTokoKode)
-            && DaftarToko.Any(t => string.Equals(
-                t.KodeToko.Trim(), FormTokoKode.Trim(), StringComparison.OrdinalIgnoreCase)))
+            && DaftarToko.Any(t => t.Id != _editingTokoId
+                && string.Equals(
+                    t.KodeToko.Trim(), FormTokoKode.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
             pesan = "Kode toko tersebut sudah digunakan.";
             return false;
@@ -381,8 +568,8 @@ public partial class MasterDataViewModel : ObservableObject
         FormTokoAlamat = string.Empty;
         FormTokoPemilik = string.Empty;
         FormTokoTelepon = string.Empty;
-        FormTokoLatitude = "-7.2575";
-        FormTokoLongitude = "112.7521";
+        FormTokoLatitude = string.Empty;
+        FormTokoLongitude = string.Empty;
         FormTokoRadius = "100";
         PesanErrorToko = string.Empty;
         AdaErrorToko = false;

@@ -139,10 +139,15 @@ public partial class VerifikasiWajahViewModel : ObservableObject
                 if (hasil.Cocok)
                 {
                     Terverifikasi = true;
-                    JudulStatus = "Wajah terverifikasi";
-                    PesanStatus = $"Kecocokan {(hasil.Skor * 100):F0}% - melanjutkan ke foto toko...";
+                    JudulStatus = hasil.Simulasi
+                        ? "Wajah terverifikasi (simulasi)"
+                        : "Wajah terverifikasi";
+                    PesanStatus = hasil.Simulasi
+                        ? $"Mode simulasi aktif karena model wajah belum tersedia - skor {(hasil.Skor * 100):F0}%. Melanjutkan ke foto toko..."
+                        : $"Kecocokan {(hasil.Skor * 100):F0}% - melanjutkan ke foto toko...";
 
                     _flow.SkorWajah = hasil.Skor;
+                    _flow.WajahSimulasi = hasil.Simulasi;
                     _flow.WaktuVerifikasiWajah = DateTime.Now.ToString("dd MMM yyyy - HH.mm.ss 'WIB'");
 
                     await _notif.ShowSuccessAsync("Wajah terverifikasi.");

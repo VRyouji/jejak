@@ -47,7 +47,7 @@
 
                 <Label Text="Email" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,0,0,4" />
                 <Border Style="{StaticResource InputCard}">
-                    <Entry Text="{Binding Username}" Placeholder="hr@example.com" Keyboard="Email" IsSpellCheckEnabled="False" />
+                    <Entry Text="{Binding Username}" Placeholder="nama@perusahaan.com" Keyboard="Email" IsSpellCheckEnabled="False" />
                 </Border>
 
                 <Label Text="Password" FontFamily="OpenSansSemibold" FontSize="13" Margin="0,4,0,4" />
@@ -59,7 +59,7 @@
 
                 <Button Text="Masuk >" Style="{StaticResource PrimaryButton}" Command="{Binding MasukCommand}" Margin="0,8,0,4" AutomationId="ButtonHrLogin" />
 
-                <Label Text="Akun seed: hr@example.com / hr123456" HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" FontSize="12" Margin="0,8,0,0" />
+                <Label Text="Gunakan akun HR yang terdaftar di database." HorizontalOptions="Center" TextColor="{StaticResource TextSecondary}" FontSize="12" Margin="0,8,0,0" />
             </VerticalStackLayout>
         </controls:FloatingCard>
 

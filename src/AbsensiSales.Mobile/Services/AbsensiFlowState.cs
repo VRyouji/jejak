@@ -21,6 +21,7 @@ public class AbsensiFlowState
     public string Catatan { get; set; } = string.Empty;
 
     public double SkorWajah { get; set; }
+    public bool WajahSimulasi { get; set; }
     public string WaktuVerifikasiWajah { get; set; } = string.Empty;
 
     public byte[]? FotoBukti { get; set; }
@@ -34,6 +35,7 @@ public class AbsensiFlowState
         TujuanKunjungan = string.Empty;
         Catatan = string.Empty;
         SkorWajah = 0;
+        WajahSimulasi = false;
         WaktuVerifikasiWajah = string.Empty;
         FotoBukti = null;
         WaktuFoto = string.Empty;

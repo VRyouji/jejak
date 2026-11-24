@@ -59,6 +59,15 @@ public partial class DetailKunjunganViewModel : ObservableObject
     private string _infoFoto = string.Empty;
 
     [ObservableProperty]
+    private string? _fotoUrl;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TidakAdaFoto))]
+    private bool _adaFoto;
+
+    public bool TidakAdaFoto => !AdaFoto;
+
+    [ObservableProperty]
     private string _pesanError = string.Empty;
 
     [ObservableProperty]
@@ -117,8 +126,49 @@ public partial class DetailKunjunganViewModel : ObservableObject
         InfoWajah = (kunjungan.SkorWajah ?? 0) > 0
             ? $"Skor wajah {kunjungan.SkorWajah!.Value:F2}"
             : "Tidak ada data skor wajah.";
-        InfoFoto = string.IsNullOrWhiteSpace(kunjungan.FotoBukti)
-            ? "Tidak ada foto bukti."
-            : "Foto bukti tersedia.";
+
+        var foto = kunjungan.FotoBukti?.Trim();
+        if (string.IsNullOrWhiteSpace(foto))
+        {
+            FotoUrl = null;
+            AdaFoto = false;
+            InfoFoto = "Tidak ada foto bukti.";
+        }
+        else
+        {
+            var url = $"{ApiConfig.BaseUrl.TrimEnd('/')}/{foto.TrimStart('/')}";
+            var tersedia = await FotoBisaDimuatAsync(url);
+
+            // Jangan tampilkan kotak gambar rusak kalau berkasnya tidak ada di server.
+            FotoUrl = tersedia ? url : null;
+            AdaFoto = tersedia;
+            InfoFoto = tersedia
+                ? "Foto bukti tersimpan di server."
+                : "Berkas foto tidak ditemukan di server.";
+        }
+    }
+
+    private static readonly HttpClient FotoClient = new()
+    {
+        Timeout = TimeSpan.FromSeconds(8)
+    };
+
+    private static async Task<bool> FotoBisaDimuatAsync(string url)
+    {
+        try
+        {
+            using var respons = await FotoClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            if (!respons.IsSuccessStatusCode)
+            {
+                return false;
+            }
+
+            var tipe = respons.Content.Headers.ContentType?.MediaType ?? string.Empty;
+            return tipe.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

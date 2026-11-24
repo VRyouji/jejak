@@ -27,6 +27,7 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#2B2319" />
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#2B2319" BaseSize="128,128" />
 		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\logo_jejak.png" BaseSize="120,120" />
 		<MauiFont Include="Resources\Fonts\*" />
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>

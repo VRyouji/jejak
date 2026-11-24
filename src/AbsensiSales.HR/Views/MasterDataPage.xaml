@@ -120,22 +120,39 @@
                             <Button Grid.Column="1" Text="+ Tambah sales" Style="{StaticResource PrimaryButton}" Command="{Binding TambahSalesCommand}" HeightRequest="36" />
                         </Grid>
 
-                        <Grid ColumnDefinitions="40,1.2*,1*,1.2*" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
+                        <Grid ColumnDefinitions="40,1.2*,1*,1.2*,Auto" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
                             <Label Grid.Column="1" Text="Nama" Style="{StaticResource TableHeader}" />
                             <Label Grid.Column="2" Text="NIP" Style="{StaticResource TableHeader}" />
                             <Label Grid.Column="3" Text="Wilayah" Style="{StaticResource TableHeader}" />
+                            <Label Grid.Column="4" Text="Aksi" Style="{StaticResource TableHeader}" />
                         </Grid>
 
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding DaftarSales}" Spacing="0">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="models:Sales">
-                                    <Grid ColumnDefinitions="40,1.2*,1*,1.2*" ColumnSpacing="8" Padding="8,10">
+                                <DataTemplate x:DataType="vm:SalesMasterItem">
+                                    <Grid ColumnDefinitions="40,1.2*,1*,1.2*,Auto" ColumnSpacing="8" Padding="8,10">
                                         <Border Grid.Column="0" BackgroundColor="{StaticResource InfoBg}" StrokeThickness="0" StrokeShape="RoundRectangle 18" WidthRequest="34" HeightRequest="34">
                                             <Label Text="{Binding Inisial}" TextColor="{StaticResource PrimaryDark}" FontFamily="OpenSansSemibold" FontSize="11" HorizontalOptions="Center" VerticalOptions="Center" />
                                         </Border>
                                         <Label Grid.Column="1" Text="{Binding Nama}" Style="{StaticResource TableCell}" FontFamily="OpenSansSemibold" />
                                         <Label Grid.Column="2" Text="{Binding Nip}" Style="{StaticResource TableCell}" />
                                         <Label Grid.Column="3" Text="{Binding Wilayah}" Style="{StaticResource TableCell}" />
+                                        <HorizontalStackLayout Grid.Column="4" Spacing="6" VerticalOptions="Center">
+                                            <Button Text="Ubah"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    FontSize="11"
+                                                    HeightRequest="30"
+                                                    Padding="8,0"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MasterDataViewModel}, Mode=FindAncestorBindingContext}, Path=UbahSalesCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            <Button Text="Hapus"
+                                                    Style="{StaticResource RejectButton}"
+                                                    FontSize="11"
+                                                    HeightRequest="30"
+                                                    Padding="8,0"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MasterDataViewModel}, Mode=FindAncestorBindingContext}, Path=HapusSalesCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                        </HorizontalStackLayout>
                                     </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
@@ -151,21 +168,38 @@
                             <Button Grid.Column="1" Text="+ Tambah toko" Style="{StaticResource PrimaryButton}" Command="{Binding TambahTokoCommand}" HeightRequest="36" />
                         </Grid>
 
-                        <Grid ColumnDefinitions="1*,1.2*,1.6*,90" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
+                        <Grid ColumnDefinitions="1*,1.2*,1.6*,80,Auto" ColumnSpacing="8" BackgroundColor="{StaticResource SurfaceAlt}" Padding="8,6">
                             <Label Grid.Column="0" Text="Kode" Style="{StaticResource TableHeader}" />
                             <Label Grid.Column="1" Text="Nama toko" Style="{StaticResource TableHeader}" />
                             <Label Grid.Column="2" Text="Alamat" Style="{StaticResource TableHeader}" />
                             <Label Grid.Column="3" Text="Radius" Style="{StaticResource TableHeader}" />
+                            <Label Grid.Column="4" Text="Aksi" Style="{StaticResource TableHeader}" />
                         </Grid>
 
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding DaftarToko}" Spacing="0">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:Toko">
-                                    <Grid ColumnDefinitions="1*,1.2*,1.6*,90" ColumnSpacing="8" Padding="8,10">
+                                    <Grid ColumnDefinitions="1*,1.2*,1.6*,80,Auto" ColumnSpacing="8" Padding="8,10">
                                         <Label Grid.Column="0" Text="{Binding KodeToko}" Style="{StaticResource TableCell}" FontFamily="OpenSansSemibold" />
                                         <Label Grid.Column="1" Text="{Binding NamaToko}" Style="{StaticResource TableCell}" />
                                         <Label Grid.Column="2" Text="{Binding Alamat}" Style="{StaticResource TableCell}" />
                                         <Label Grid.Column="3" Text="{Binding RadiusMeter, StringFormat='{0:F0} m'}" Style="{StaticResource TableCell}" />
+                                        <HorizontalStackLayout Grid.Column="4" Spacing="6" VerticalOptions="Center">
+                                            <Button Text="Ubah"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    FontSize="11"
+                                                    HeightRequest="30"
+                                                    Padding="8,0"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MasterDataViewModel}, Mode=FindAncestorBindingContext}, Path=UbahTokoCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            <Button Text="Hapus"
+                                                    Style="{StaticResource RejectButton}"
+                                                    FontSize="11"
+                                                    HeightRequest="30"
+                                                    Padding="8,0"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MasterDataViewModel}, Mode=FindAncestorBindingContext}, Path=HapusTokoCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                        </HorizontalStackLayout>
                                     </Grid>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
@@ -188,7 +222,7 @@
 
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <VerticalStackLayout Grid.Column="0" Spacing="3">
-                                <Label Text="Tambah sales" Style="{StaticResource SectionTitle}" FontSize="20" />
+                                <Label Text="{Binding FormSalesJudul}" Style="{StaticResource SectionTitle}" FontSize="20" />
                                 <Label Text="Lengkapi data akun sales yang akan memakai aplikasi mobile." Style="{StaticResource PageSubtitle}" FontSize="12" />
                             </VerticalStackLayout>
                             <Button Grid.Column="1"
@@ -222,15 +256,16 @@
                             <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
                                 <Label Text="Email *" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
-                                    <Entry Text="{Binding FormSalesEmail}" Placeholder="sales@example.com" Keyboard="Email" IsSpellCheckEnabled="False" />
+                                    <Entry Text="{Binding FormSalesEmail}" Placeholder="nama@perusahaan.com" Keyboard="Email" IsSpellCheckEnabled="False" />
                                 </Border>
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
-                                <Label Text="Password *" Style="{StaticResource FormLabel}" />
+                                <Label Text="Password" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
                                     <Entry Text="{Binding FormSalesPassword}" Placeholder="Minimal 6 karakter" IsPassword="True" />
                                 </Border>
+                                <Label Text="{Binding FormSalesPasswordHint}" Style="{StaticResource FormHint}" />
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="4">
@@ -281,7 +316,7 @@
 
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <VerticalStackLayout Grid.Column="0" Spacing="3">
-                                <Label Text="Tambah toko" Style="{StaticResource SectionTitle}" FontSize="20" />
+                                <Label Text="{Binding FormTokoJudul}" Style="{StaticResource SectionTitle}" FontSize="20" />
                                 <Label Text="Lengkapi data toko mitra beserta koordinat GPS dan radius absensi." Style="{StaticResource PageSubtitle}" FontSize="12" />
                             </VerticalStackLayout>
                             <Button Grid.Column="1"
@@ -336,14 +371,14 @@
                             <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="4">
                                 <Label Text="Latitude *" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
-                                    <Entry Text="{Binding FormTokoLatitude}" Placeholder="-7.2575" Keyboard="Numeric" />
+                                    <Entry Text="{Binding FormTokoLatitude}" Placeholder="Koordinat latitude" Keyboard="Numeric" />
                                 </Border>
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4">
                                 <Label Text="Longitude *" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
-                                    <Entry Text="{Binding FormTokoLongitude}" Placeholder="112.7521" Keyboard="Numeric" />
+                                    <Entry Text="{Binding FormTokoLongitude}" Placeholder="Koordinat longitude" Keyboard="Numeric" />
                                 </Border>
                             </VerticalStackLayout>
                         </Grid>

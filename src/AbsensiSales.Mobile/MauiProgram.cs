@@ -1,6 +1,4 @@
 ﻿using AbsensiSales.Core.Api;
-using AbsensiSales.Core.Data;
-using AbsensiSales.Core.Repositories;
 using AbsensiSales.Core.Services;
 using AbsensiSales.Mobile.Services;
 using AbsensiSales.Mobile.ViewModels;
@@ -28,12 +26,7 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // Data & sesi (https://learn.microsoft.com/dotnet/maui/data/)
-        builder.Services.AddSingleton<AppDatabase>();
-        builder.Services.AddSingleton<SalesRepository>();
-        builder.Services.AddSingleton<TokoRepository>();
-        builder.Services.AddSingleton<KunjunganRepository>();
-        builder.Services.AddSingleton<PermohonanRepository>();
+        // Seluruh data Mobile berasal dari backend API.
         builder.Services.AddSingleton<SessionService>();
         builder.Services.AddSingleton<ApiService>();
 

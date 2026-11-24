@@ -13,7 +13,6 @@ public partial class PermohonanItem : ObservableObject
     public required int Id { get; init; }
     public int SalesId { get; init; }
     public required string NamaSales { get; init; }
-    public string Jabatan { get; init; } = "Sales Lapangan";
     public required string Nip { get; init; }
     public required string Jenis { get; init; }
     public required string Periode { get; init; }
@@ -59,7 +58,6 @@ public partial class PermohonanItem : ObservableObject
         NamaSales = string.IsNullOrWhiteSpace(permohonan.NamaSales)
             ? "Karyawan"
             : permohonan.NamaSales!,
-        Jabatan = "Sales Lapangan",
         Nip = string.IsNullOrWhiteSpace(permohonan.NomorSales)
             ? "-"
             : permohonan.NomorSales!,

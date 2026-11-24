@@ -17,10 +17,10 @@ public partial class HrLoginViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    private string _username = "hr@example.com";
+    private string _username = string.Empty;
 
     [ObservableProperty]
-    private string _password = "hr123456";
+    private string _password = string.Empty;
 
     [ObservableProperty]
     private string _pesanError = string.Empty;
