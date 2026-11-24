@@ -67,7 +67,7 @@
       </div>
       <div>
         <label>URL</label>
-        <input type="url" id="url" value="https://jejaksales.site.je/health.php" placeholder="https://domain-kamu/endpoint.php">
+        <input type="url" id="url" value="https://GANTI-DOMAIN/health.php" placeholder="https://domain-kamu/endpoint.php">
       </div>
       <div style="display:flex; align-items:end; gap:8px;">
         <label style="margin-bottom:0;">Token (Bearer)</label>
@@ -90,7 +90,7 @@
     </div>
     <textarea id="body" placeholder='{
   "email": "andi@example.com",
-  "password": "demo123"
+  "password": "GANTI_PASSWORD"
 }'></textarea>
 
     <div class="row">
@@ -113,7 +113,7 @@
     <label style="margin-bottom:8px;">Endpoint cepat (klik untuk isi URL)</label>
     <div class="endpoint-list">
       <div class="ep" onclick="fillExample('GET', 'health.php', '')">GET health.php — cek koneksi</div>
-      <div class="ep" onclick="fillExample('POST', 'login.php', '{"email":"andi@example.com","password":"demo123"}')">POST login.php — login Sales</div>
+      <div class="ep" onclick="fillExample('POST', 'login.php', '{"email":"andi@example.com","password":"GANTI_PASSWORD"}')">POST login.php — login Sales</div>
       <div class="ep" onclick="fillExample('GET', 'toko.php', '')">GET toko.php — daftar toko</div>
       <div class="ep" onclick="fillExample('POST', 'absen.php', '{"action":"checkin","id_toko":1,"latitude_checkin":-7.2854,"longitude_checkin":112.7398}')">POST absen.php — check-in</div>
       <div class="ep" onclick="fillExample('POST', 'absen.php', '{"action":"checkout","id_kunjungan":1,"latitude_checkout":-7.2853,"longitude_checkout":112.7399}')">POST absen.php — check-out</div>
@@ -123,7 +123,7 @@
 </div>
 
 <script>
-const baseDefault = 'https://jejaksales.site.je';
+const baseDefault = 'https://GANTI-DOMAIN';
 
 function setUrl(path){
   document.getElementById('url').value = baseDefault + '/' + path;

@@ -8,8 +8,8 @@
 -- Seed ini TIDAK membuat kunjungan/permohonan contoh.
 --
 -- Akun hasil seed:
---   Sales : andi@example.com / demo123
---   HR    : hr@example.com   / hr123456
+--   Sales : andi@example.com / ********
+--   HR    : hr@example.com   / ********
 -- ============================================================
 
 -- ------------------------------------------------------------

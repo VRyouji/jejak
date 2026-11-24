@@ -8,9 +8,9 @@
 -- Jalankan di phpMyAdmin -> pilih database -> tab Import.
 --
 -- Setelah selesai:
---   HR    : hr@example.com    / hr123456
---   Sales : andi@example.com  / demo123
---   Sales : sales@example.com / sales123
+--   HR    : hr@example.com    / ********
+--   Sales : andi@example.com  / ********
+--   Sales : sales@example.com / ********
 --   + 8 toko contoh, pengaturan gaji
 -- ============================================================
 
@@ -41,9 +41,9 @@ SET FOREIGN_KEY_CHECKS = 1;
 --   05_akun_login.sql        -> akun demo HR + Sales (password diperbarui)
 --
 -- Akun setelah import:
---   HR    : hr@example.com    / hr123456
---   Sales : andi@example.com  / demo123
---   Sales : sales@example.com / sales123
+--   HR    : hr@example.com    / ********
+--   Sales : andi@example.com  / ********
+--   Sales : sales@example.com / ********
 --
 -- Aman dijalankan berulang.
 -- ============================================================
@@ -316,8 +316,8 @@ ALTER TABLE tbl_pengguna
 -- Aman dijalankan lebih dari sekali (tidak menggandakan data).
 --
 -- Akun hasil seed:
---   Sales : andi@example.com / demo123
---   HR    : hr@example.com   / hr123456
+--   Sales : andi@example.com / ********
+--   HR    : hr@example.com   / ********
 -- ============================================================
 
 -- ------------------------------------------------------------
@@ -413,9 +413,9 @@ WHERE @jumlah_pengaturan = 0;
 -- File ini memaksa nama, password, dan role ikut diperbarui.
 --
 -- Akun setelah menjalankan file ini:
---   HR    : hr@example.com    / hr123456
---   Sales : andi@example.com  / demo123
---   Sales : sales@example.com / sales123
+--   HR    : hr@example.com    / ********
+--   Sales : andi@example.com  / ********
+--   Sales : sales@example.com / ********
 -- ============================================================
 
 SET NAMES utf8mb4;

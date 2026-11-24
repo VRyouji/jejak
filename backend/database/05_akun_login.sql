@@ -15,9 +15,9 @@
 -- File ini memaksa nama, password, dan role ikut diperbarui.
 --
 -- Akun setelah menjalankan file ini:
---   HR    : hr@example.com    / hr123456
---   Sales : andi@example.com  / demo123
---   Sales : sales@example.com / sales123
+--   HR    : hr@example.com    / ********
+--   Sales : andi@example.com  / ********
+--   Sales : sales@example.com / ********
 -- ============================================================
 
 SET NAMES utf8mb4;

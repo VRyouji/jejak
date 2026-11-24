@@ -6,7 +6,7 @@ public static class ApiConfig
     /// Di hosting ini file API di-upload ke root htdocs, jadi tanpa "/api".
     /// Kalau nanti dipindah ke folder htdocs/api, ubah menjadi ".../api".
     /// </summary>
-    public const string DefaultBaseUrl = "https://jejaksales.site.je";
+    public const string DefaultBaseUrl = "https://GANTI-DOMAIN";
 
     /// <summary>Bisa diubah saat runtime (mis. untuk pengujian).</summary>
     public static string BaseUrl { get; set; } = DefaultBaseUrl;

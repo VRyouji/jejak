@@ -6,9 +6,9 @@
  *   Client Area -> Manage -> MySQL Databases
  *
  * Contoh yang tampil di InfinityFree:
- *   Hostname : sql309.infinityfree.com
- *   Database : if0_38123456_absensi_sales
- *   Username : if0_38123456
+ *   Hostname : sqlxxx.infinityfree.com
+ *   Database : if0_xxxxxxx_absensi_sales
+ *   Username : if0_xxxxxxx
  *   Password : (password yang kamu buat saat membuat database)
  */
 
