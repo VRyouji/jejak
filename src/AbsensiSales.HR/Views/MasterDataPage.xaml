@@ -331,7 +331,7 @@
                                     VerticalOptions="Start" />
                         </Grid>
 
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto"
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                               ColumnSpacing="12" RowSpacing="10">
                             <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
                                 <Label Text="Kode toko *" Style="{StaticResource FormLabel}" />
@@ -368,14 +368,28 @@
                                 </Border>
                             </VerticalStackLayout>
 
-                            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="4">
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+                                <Label Text="Link Google Maps (otomatis mengisi latitude &amp; longitude)" Style="{StaticResource FormLabel}" />
+                                <Border Style="{StaticResource InputCard}">
+                                    <Entry Text="{Binding FormTokoUrlMaps}" Placeholder="Tempel link dari sales, mis. https://maps.app.goo.gl/..." />
+                                </Border>
+                                <Label Text="{Binding InfoKoordinat}" IsVisible="{Binding AdaInfoKoordinat}" Style="{StaticResource FormHint}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding InfoKoordinatGagal}" Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource Danger}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="4" Grid.Column="0" Spacing="4">
                                 <Label Text="Latitude *" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
                                     <Entry Text="{Binding FormTokoLatitude}" Placeholder="Koordinat latitude" Keyboard="Numeric" />
                                 </Border>
                             </VerticalStackLayout>
 
-                            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4">
+                            <VerticalStackLayout Grid.Row="4" Grid.Column="1" Spacing="4">
                                 <Label Text="Longitude *" Style="{StaticResource FormLabel}" />
                                 <Border Style="{StaticResource InputCard}">
                                     <Entry Text="{Binding FormTokoLongitude}" Placeholder="Koordinat longitude" Keyboard="Numeric" />

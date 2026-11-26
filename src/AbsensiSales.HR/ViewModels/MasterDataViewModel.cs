@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using AbsensiSales.Core.Api;
+using AbsensiSales.Core.Maps;
 using AbsensiSales.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,6 +11,8 @@ namespace AbsensiSales.HR.ViewModels;
 public partial class MasterDataViewModel : ObservableObject
 {
     private readonly ApiService _api;
+    private readonly MapsLinkResolver _maps = new();
+    private CancellationTokenSource? _mapsCts;
 
     public MasterDataViewModel(ApiService api)
     {
@@ -112,11 +115,78 @@ public partial class MasterDataViewModel : ObservableObject
     [ObservableProperty]
     private string _formTokoRadius = "100";
 
+    /// <summary>Link Google Maps (panjang/pendek) atau koordinat polos yang ditempel HR.</summary>
+    [ObservableProperty]
+    private string _formTokoUrlMaps = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AdaInfoKoordinat))]
+    private string _infoKoordinat = string.Empty;
+
+    [ObservableProperty]
+    private bool _infoKoordinatGagal;
+
+    public bool AdaInfoKoordinat => InfoKoordinat.Length > 0;
+
     [ObservableProperty]
     private string _pesanErrorToko = string.Empty;
 
     [ObservableProperty]
     private bool _adaErrorToko;
+
+    /// <summary>
+    /// Dipanggil otomatis setiap isi kolom link Google Maps berubah.
+    /// Menunggu sebentar (debounce) supaya tidak memproses link yang
+    /// masih diketik, lalu mengisi Latitude/Longitude. Hasilnya tetap
+    /// bisa diedit manual oleh HR.
+    /// </summary>
+    partial void OnFormTokoUrlMapsChanged(string value)
+    {
+        _mapsCts?.Cancel();
+        _mapsCts = null;
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            InfoKoordinat = string.Empty;
+            InfoKoordinatGagal = false;
+            return;
+        }
+
+        _mapsCts = new CancellationTokenSource();
+        _ = IsiKoordinatDariUrlAsync(value, _mapsCts.Token);
+    }
+
+    private async Task IsiKoordinatDariUrlAsync(string masukan, CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(600, ct);
+
+            InfoKoordinatGagal = false;
+            InfoKoordinat = "Membaca lokasi dari link...";
+
+            var hasil = await _maps.AmbilAsync(masukan, ct);
+            if (ct.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (!hasil.Sukses)
+            {
+                InfoKoordinatGagal = true;
+                InfoKoordinat = hasil.Pesan;
+                return;
+            }
+
+            FormTokoLatitude = hasil.Koordinat.Latitude.ToString("0.#######", CultureInfo.InvariantCulture);
+            FormTokoLongitude = hasil.Koordinat.Longitude.ToString("0.#######", CultureInfo.InvariantCulture);
+            InfoKoordinat = "Koordinat terisi dari link. Periksa kembali dan sesuaikan jika perlu.";
+        }
+        catch (OperationCanceledException)
+        {
+            // Link berubah lagi sebelum selesai: abaikan, proses baru akan menggantikan.
+        }
+    }
 
     public async Task MuatAsync()
     {
@@ -342,6 +412,7 @@ public partial class MasterDataViewModel : ObservableObject
         FormTokoAlamat = item.Alamat == "-" ? string.Empty : item.Alamat;
         FormTokoPemilik = item.Pemilik;
         FormTokoTelepon = item.Telepon;
+        FormTokoUrlMaps = string.Empty;
         FormTokoLatitude = item.Latitude.ToString(CultureInfo.InvariantCulture);
         FormTokoLongitude = item.Longitude.ToString(CultureInfo.InvariantCulture);
         FormTokoRadius = item.RadiusMeter.ToString(CultureInfo.InvariantCulture);
@@ -568,6 +639,7 @@ public partial class MasterDataViewModel : ObservableObject
         FormTokoAlamat = string.Empty;
         FormTokoPemilik = string.Empty;
         FormTokoTelepon = string.Empty;
+        FormTokoUrlMaps = string.Empty;
         FormTokoLatitude = string.Empty;
         FormTokoLongitude = string.Empty;
         FormTokoRadius = "100";
